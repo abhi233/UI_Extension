@@ -38,7 +38,7 @@ The standalone app keeps the same JSON schema and supports:
 
 - Click events
 - Field changes (`input`, `textarea`, `select`)
-- Password typing events are recorded with masked values
+- Password fields are recorded like normal input fields
 - Form submit
 - Page load marker
 - Navigation event (`type: navigation`) when tab URL changes

@@ -244,9 +244,6 @@
     const tag = element.tagName.toLowerCase();
     if (tag === "input") {
       const inputType = (element.getAttribute("type") || "text").toLowerCase();
-      if (inputType === "password") {
-        return "__masked__";
-      }
       if (inputType === "checkbox" || inputType === "radio") {
         return String(Boolean(element.checked));
       }
@@ -290,14 +287,6 @@
     return nextKey;
   }
 
-  function isSensitiveElement(element) {
-    if (!element || element.tagName !== "INPUT") {
-      return false;
-    }
-    const inputType = (element.getAttribute("type") || "text").toLowerCase();
-    return inputType === "password";
-  }
-
   function isRecordableFormElement(element) {
     return Boolean(element && ["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName));
   }
@@ -307,12 +296,9 @@
   }
 
   function buildFieldDetails(element) {
-    const rawValue = String(element?.value ?? "");
     return {
       value: readElementValue(element),
-      inputType: (element?.getAttribute?.("type") || "").toLowerCase(),
-      isSensitive: isSensitiveElement(element),
-      maskedLength: isSensitiveElement(element) ? rawValue.length : 0
+      inputType: (element?.getAttribute?.("type") || "").toLowerCase()
     };
   }
 
@@ -322,8 +308,7 @@
     const signature = JSON.stringify({
       action,
       value: details.value,
-      inputType: details.inputType,
-      maskedLength: details.maskedLength
+      inputType: details.inputType
     });
 
     if (previous && previous.signature === signature && Date.now() - previous.at < 1200) {

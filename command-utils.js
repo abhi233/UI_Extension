@@ -254,8 +254,7 @@
             normalizedCommand: cleaned.toLowerCase(),
             targetDescription: parsedTarget.targetDescription,
             locatorHint: parsedTarget.locatorHint,
-            inputValue,
-            isSensitive: /password|passcode|pin|otp|secret/i.test(parsedTarget.targetDescription)
+            inputValue
           };
         }
 
@@ -380,7 +379,6 @@
     }
 
     if (commandShape.kind === "enter") {
-      const isSensitive = Boolean(commandShape.isSensitive);
       return {
         type: "change",
         action: "type",
@@ -389,10 +387,8 @@
         title: tab.title || "",
         target: buildDescriptionTarget(commandShape.targetDescription, commandShape.locatorHint),
         details: {
-          value: isSensitive ? "__masked__" : commandShape.inputValue,
-          inputType: isSensitive ? "password" : "text",
-          isSensitive,
-          maskedLength: isSensitive ? String(commandShape.inputValue || "").length : 0,
+          value: commandShape.inputValue,
+          inputType: "text",
           naturalLanguage: {
             rawCommand: commandShape.rawCommand,
             normalizedCommand: commandShape.normalizedCommand,
