@@ -18,7 +18,7 @@ Then open:
 http://127.0.0.1:4791
 ```
 
-Each new Chrome launch uses a fresh browser profile and opens only the URL you provide.
+Each new Chrome launch uses a fresh browser profile and opens only the URL you provide. Old managed profiles under `standalone/.chrome-profile` are cleaned up automatically.
 
 The standalone app keeps the same JSON schema and supports:
 
@@ -43,7 +43,7 @@ The standalone app keeps the same JSON schema and supports:
 - Page load marker
 - Navigation event (`type: navigation`) when tab URL changes
 - Validation command on any selected element
-- Text or voice command validations for document title and current URL
+- Text or voice command events for navigate, click, enter, visible/present validation, document title, and current URL
 
 Validation event now supports two modes:
 
@@ -56,6 +56,7 @@ Export metadata now includes:
 - event-level `action`
 - `target.primaryLocator`
 - `target.locatorCandidates`
+- `details.waitHints` for navigate and click flows
 - `details.naturalLanguage` for command-driven validations
 
 Locator recording rules:
@@ -89,6 +90,15 @@ The popup can convert supported natural-language commands into validation events
 
 Supported now:
 
+- `navigate to https://example.com`
+- `click login button`
+- `click "Sign In" button by text`
+- `click login-submit by id`
+- `enter john into username field`
+- `enter secret123 into password by name`
+- `validate login button is visible`
+- `validate "Sign In" button by text is visible`
+- `validate login button is present`
 - `validate the title`
 - `validate title contains login`
 - `validate current url`
@@ -189,14 +199,54 @@ Voice input opens in a dedicated extension window so microphone permission and s
 }
 ```
 
+`natural-language click with locator hint`:
+
+```json
+{
+  "type": "click",
+  "action": "click",
+  "target": {
+    "targetType": "description",
+    "description": "Sign In button",
+    "locatorHint": {
+      "strategy": "text",
+      "value": "Sign In",
+      "match": "contains"
+    },
+    "primaryLocator": {
+      "type": "text",
+      "value": "Sign In",
+      "match": "contains",
+      "stability": "medium"
+    }
+  },
+  "details": {
+    "waitHints": {
+      "before": [
+        { "type": "element_actionable", "timeoutMs": 8000 }
+      ],
+      "after": [
+        { "type": "dom_settled", "timeoutMs": 1000 },
+        { "type": "optional_navigation", "timeoutMs": 10000 }
+      ]
+    }
+  }
+}
+```
+
 ## Notes for Selenium Conversion
 
 - Prefer `target.primaryLocator` first, then fallback through `target.locatorCandidates`.
+- For natural-language description targets with `locatorHint`, prefer the hinted strategy before generic description matching.
 - Branch by `details.validation.mode`:
   - `single` -> map by `assertionType` (`visible`, `text`, `value`, `attribute`)
   - `table_bulk` -> use table locator + `tableScope` and let your `.md` template generate row/column validations
 - For natural-language document validations, branch on `target.targetType === "document"` and map:
   - `document_title`
   - `document_url`
+- For `details.waitHints`, map:
+  - `url_matches` / `document_ready_state` after navigation
+  - `element_actionable` before click
+  - `dom_settled` and `optional_navigation` after click
 
 If you share your framework `.md` file in this folder, this recorder output can be aligned exactly to your command format in the next step.

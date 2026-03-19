@@ -66,15 +66,35 @@ function getTargetTab() {
 
 function updateHint() {
   const parsed = parseNaturalLanguageCommand(voiceCommandInput.value);
+  const locatorSuffix = parsed?.locatorHint ? ` by ${parsed.locatorHint.strategy}` : "";
   if (!parsed) {
-    voiceHint.textContent = "Supported now: validate title, validate title contains X, validate current url, validate current url contains X.";
+    voiceHint.textContent = "Supported now: navigate to URL, click target by text/id/name/css/xpath, enter value into field by name/id, validate target by text/id is visible/present, validate title, validate current url.";
+    return;
+  }
+
+  if (parsed.kind === "navigation") {
+    voiceHint.textContent = `Recognized as navigation to ${parsed.destinationUrl}.`;
+    return;
+  }
+
+  if (parsed.kind === "click") {
+    voiceHint.textContent = `Recognized as click on "${parsed.targetDescription}"${locatorSuffix}.`;
+    return;
+  }
+
+  if (parsed.kind === "enter") {
+    const valueLabel = parsed.isSensitive ? "a masked value" : `"${parsed.inputValue}"`;
+    voiceHint.textContent = `Recognized as entering ${valueLabel} into "${parsed.targetDescription}"${locatorSuffix}.`;
+    return;
+  }
+
+  if (parsed.kind === "element_validation") {
+    voiceHint.textContent = `Recognized as validation that "${parsed.targetDescription}"${locatorSuffix} is ${parsed.assertionType}.`;
     return;
   }
 
   const subject = parsed.assertionType === "document_title" ? "page title" : "current URL";
-  const expectation = parsed.explicitExpectedValue
-    ? `"${parsed.explicitExpectedValue}"`
-    : "the current page value";
+  const expectation = parsed.explicitExpectedValue ? `"${parsed.explicitExpectedValue}"` : "the current page value";
   voiceHint.textContent = `Recognized as ${subject} ${parsed.comparison} ${expectation}.`;
 }
 
@@ -86,7 +106,7 @@ function updateListeningButtons() {
 async function addVoiceCommandEvent() {
   const commandShape = parseNaturalLanguageCommand(voiceCommandInput.value);
   if (!commandShape) {
-    setVoiceMessage("Unsupported command. Use title or URL validations for now.", "error");
+    setVoiceMessage("Unsupported command. Use navigate, click, enter, visible/present validation, title, or URL commands.", "error");
     return;
   }
 

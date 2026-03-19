@@ -525,6 +525,28 @@
     return buildSingleValidation(config, element);
   }
 
+  function buildClickWaitHints(linkTarget) {
+    const after = [
+      {
+        type: "dom_settled",
+        timeoutMs: 1000
+      }
+    ];
+
+    if (linkTarget) {
+      after.push({
+        type: "optional_navigation",
+        timeoutMs: 10000,
+        expectedUrl: linkTarget
+      });
+    }
+
+    return {
+      before: [],
+      after
+    };
+  }
+
   function ensureStyles() {
     if (document.getElementById(STYLE_ID)) {
       return;
@@ -677,13 +699,27 @@
     if (isPickerActive) {
       return;
     }
+    flushPendingFieldEvents();
     const element = event.target;
     const anchor = element?.closest?.("a[href]");
     recordEvent("click", "click", element, {
       button: event.button,
       text: safeText(element?.innerText || element?.textContent || ""),
-      linkTarget: anchor?.href || ""
+      linkTarget: anchor?.href || "",
+      waitHints: buildClickWaitHints(anchor?.href || "")
     });
+  }
+
+  function handleFocusOut(event) {
+    if (isPickerActive) {
+      return;
+    }
+    const element = event.target;
+    if (!isRecordableFormElement(element)) {
+      return;
+    }
+    clearPendingFieldEvent(element);
+    commitFieldEvent(element);
   }
 
   function handleChange(event) {
@@ -720,7 +756,9 @@
   document.addEventListener("click", handleClick, true);
   document.addEventListener("input", handleInput, true);
   document.addEventListener("change", handleChange, true);
+  document.addEventListener("focusout", handleFocusOut, true);
   document.addEventListener("submit", handleSubmit, true);
+  window.addEventListener("beforeunload", flushPendingFieldEvents, true);
   window.addEventListener("pageshow", recordPageLoad);
 
   window.__uiRecorderSetState = function (nextState) {

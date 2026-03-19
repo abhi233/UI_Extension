@@ -156,15 +156,35 @@ function setValidationMode(mode) {
 
 function updateNaturalLanguageSummary() {
   const parsed = parseNaturalLanguageCommand(nlCommandInput.value);
+  const locatorSuffix = parsed?.locatorHint ? ` by ${parsed.locatorHint.strategy}` : "";
   if (!parsed) {
-    setCommandHint("Supported now: validate title, validate title contains X, validate current url, validate current url contains X. Voice opens in a dedicated window.");
+    setCommandHint("Supported now: navigate to URL, click target by text/id/name/css/xpath, enter value into field by name/id, validate target by text/id is visible/present, validate title, validate current url. Voice opens in a dedicated window.");
+    return;
+  }
+
+  if (parsed.kind === "navigation") {
+    setCommandHint(`Recognized as navigation to ${parsed.destinationUrl}.`);
+    return;
+  }
+
+  if (parsed.kind === "click") {
+    setCommandHint(`Recognized as click on "${parsed.targetDescription}"${locatorSuffix}.`);
+    return;
+  }
+
+  if (parsed.kind === "enter") {
+    const valueLabel = parsed.isSensitive ? "a masked value" : `"${parsed.inputValue}"`;
+    setCommandHint(`Recognized as entering ${valueLabel} into "${parsed.targetDescription}"${locatorSuffix}.`);
+    return;
+  }
+
+  if (parsed.kind === "element_validation") {
+    setCommandHint(`Recognized as validation that "${parsed.targetDescription}"${locatorSuffix} is ${parsed.assertionType}.`);
     return;
   }
 
   const subject = parsed.assertionType === "document_title" ? "page title" : "current URL";
-  const expectation = parsed.explicitExpectedValue
-    ? `"${parsed.explicitExpectedValue}"`
-    : "the current page value";
+  const expectation = parsed.explicitExpectedValue ? `"${parsed.explicitExpectedValue}"` : "the current page value";
   setCommandHint(`Recognized as ${subject} ${parsed.comparison} ${expectation}.`);
 }
 
@@ -264,7 +284,7 @@ async function pickValidationTarget() {
 async function addNaturalLanguageCommandEvent() {
   const commandShape = parseNaturalLanguageCommand(nlCommandInput.value);
   if (!commandShape) {
-    setMessage("Unsupported command. Use title or URL validations for now.", "error");
+    setMessage("Unsupported command. Use navigate, click, enter, visible/present validation, title, or URL commands.", "error");
     return;
   }
 

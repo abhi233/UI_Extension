@@ -50,6 +50,25 @@ function generateEventId() {
   return `event-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 }
 
+function buildNavigationWaitHints(nextUrl) {
+  return {
+    before: [],
+    after: [
+      {
+        type: "url_matches",
+        match: "equals",
+        value: nextUrl,
+        timeoutMs: 15000
+      },
+      {
+        type: "document_ready_state",
+        value: "complete",
+        timeoutMs: 15000
+      }
+    ]
+  };
+}
+
 function touchState() {
   recorderState.lastUpdatedAt = nowIso();
 }
@@ -303,7 +322,8 @@ class CDPTargetSession {
       details: {
         targetId: this.id,
         fromUrl: this.lastNavigationUrl || null,
-        toUrl: nextUrl
+        toUrl: nextUrl,
+        waitHints: buildNavigationWaitHints(nextUrl)
       }
     });
     this.lastNavigationUrl = nextUrl;
@@ -428,6 +448,28 @@ function resetTrackedTargets() {
   selectedTargetId = null;
 }
 
+function cleanupManagedProfiles() {
+  try {
+    if (!fs.existsSync(PROFILE_ROOT_DIR)) {
+      return;
+    }
+
+    for (const entry of fs.readdirSync(PROFILE_ROOT_DIR, { withFileTypes: true })) {
+      if (!entry.isDirectory()) {
+        continue;
+      }
+      const entryPath = path.join(PROFILE_ROOT_DIR, entry.name);
+      try {
+        fs.rmSync(entryPath, { recursive: true, force: true });
+      } catch (error) {
+        void error;
+      }
+    }
+  } catch (error) {
+    void error;
+  }
+}
+
 async function stopManagedChrome() {
   if (!browserState.process || browserState.process.killed) {
     return;
@@ -446,6 +488,7 @@ async function launchChrome(startUrl) {
 
   await stopManagedChrome();
   resetTrackedTargets();
+  cleanupManagedProfiles();
 
   const profileDir = path.join(PROFILE_ROOT_DIR, `profile-${Date.now()}`);
   fs.mkdirSync(profileDir, { recursive: true });
@@ -750,6 +793,7 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(APP_PORT, HOST, () => {
+  cleanupManagedProfiles();
   ensureDiscoverLoop();
   void discoverTargets();
   console.log(`UI-Recorder standalone server running at http://${HOST}:${APP_PORT}`);
