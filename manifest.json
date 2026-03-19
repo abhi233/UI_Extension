@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "UI-Recorder",
+  "version": "0.1.0",
+  "description": "Record Chrome actions and validation commands, then export JSON for Selenium generation.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "downloads"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "UI-Recorder",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UI-Recorder</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">UI Automation Recorder</p>
+          <h1>UI-Recorder</h1>
+          <p class="hero-copy">Capture browser actions, attach validations, and export clean JSON for Selenium generation.</p>
+        </div>
+        <div id="statusPill" class="status-pill idle">Idle</div>
+      </header>
+
+      <section class="panel stats-panel">
+        <div class="stat-card">
+          <span class="stat-label">Events</span>
+          <strong id="eventCountValue" class="stat-value">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Validation Mode</span>
+          <strong id="modeValue" class="stat-value">Single</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Ready State</span>
+          <strong id="statusText" class="stat-value">Idle</strong>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <h2>1. Control Session</h2>
+          <p>Start a clean recording session before capturing steps.</p>
+        </div>
+        <div class="control-grid">
+          <button id="startBtn" class="primary">Start Recording</button>
+          <button id="stopBtn" class="secondary">Stop</button>
+          <button id="clearBtn" class="ghost">Clear</button>
+        </div>
+      </section>
+
+      <section class="panel validation-panel">
+        <div class="section-head">
+          <h2>2. Add Validation</h2>
+          <p id="modeHint">Record one element assertion such as text, visible, value, or attribute.</p>
+        </div>
+
+        <label for="commandInput">Command Label</label>
+        <input id="commandInput" type="text" value="add validation" />
+
+        <div class="field-label">Validation Mode</div>
+        <div class="segmented" role="tablist" aria-label="Validation mode">
+          <button id="modeSingleBtn" type="button" class="segmented-btn active" data-mode="single">Single</button>
+          <button id="modeTableBtn" type="button" class="segmented-btn" data-mode="table_bulk">Table Bulk</button>
+        </div>
+
+        <div id="singleConfig" class="config-group">
+          <label for="validationType">Validation Type</label>
+          <select id="validationType">
+            <option value="visible">visible</option>
+            <option value="text">text</option>
+            <option value="value">value</option>
+            <option value="attribute">attribute</option>
+          </select>
+
+          <div id="attributeField" class="config-group nested-group hidden">
+            <label for="attributeName">Attribute Name</label>
+            <input id="attributeName" type="text" placeholder="data-test" />
+          </div>
+
+          <label for="expectedValue">Expected Value</label>
+          <input id="expectedValue" type="text" placeholder="Optional. Uses current page value if empty." />
+        </div>
+
+        <div id="tableBulkConfig" class="config-group hidden">
+          <label for="tableRowStrategy">Row Strategy</label>
+          <select id="tableRowStrategy">
+            <option value="all_rows">all_rows</option>
+            <option value="row_range">row_range</option>
+          </select>
+
+          <div id="rowRangeFields" class="inline-fields hidden">
+            <div>
+              <label for="rowStart">Row Start</label>
+              <input id="rowStart" type="number" min="1" value="1" />
+            </div>
+            <div>
+              <label for="rowEnd">Row End</label>
+              <input id="rowEnd" type="number" min="1" value="1" />
+            </div>
+          </div>
+
+          <label for="tableColumns">Columns</label>
+          <input id="tableColumns" type="text" placeholder="Name, Status" />
+
+          <label for="tableKeyColumn">Key Column</label>
+          <input id="tableKeyColumn" type="text" placeholder="Order ID" />
+
+          <p class="hint">Pick the table itself or any cell inside it. The export stores the table locator and scope only.</p>
+        </div>
+
+        <div class="action-strip">
+          <button id="pickValidationBtn" class="accent">Pick Validation Target</button>
+          <p id="validationSummary" class="summary-text">Single validation will capture one assertion from the selected element.</p>
+        </div>
+      </section>
+
+      <section class="panel command-panel">
+        <div class="section-head">
+          <h2>3. Voice Or Text Command</h2>
+          <p>Convert a natural-language instruction into a validation event without picking an element.</p>
+        </div>
+
+        <label for="nlCommandInput">Command</label>
+        <textarea
+          id="nlCommandInput"
+          rows="3"
+          placeholder="Examples: validate the title, validate title contains login, validate current url"
+        ></textarea>
+
+        <div class="command-toolbar">
+          <button id="listenBtn" class="secondary">Start Listening</button>
+          <button id="addCommandBtn" class="accent">Add Command Event</button>
+        </div>
+
+        <p id="commandHint" class="summary-text">Supported now: title and URL validations, including contains checks.</p>
+      </section>
+
+      <section class="panel export-panel">
+        <div class="section-head">
+          <h2>4. Export JSON</h2>
+          <p>Use the exported file as input for Codex or VS Code automation.</p>
+        </div>
+        <button id="exportBtn" class="primary export-btn">Export Session JSON</button>
+      </section>
+
+      <p id="message" class="message" aria-live="polite"></p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
