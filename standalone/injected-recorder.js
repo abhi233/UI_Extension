@@ -17,6 +17,11 @@
   let pickerConfig = null;
   let highlightedElement = null;
   let noticeTimeoutId = null;
+  let elementKeyCounter = 0;
+
+  const pendingFieldEvents = new Map();
+  const lastFieldEventByKey = new Map();
+  const elementKeys = new WeakMap();
 
   function emit(payload) {
     if (typeof window.uiRecorderEmit === "function") {
@@ -269,6 +274,114 @@
       locatorCandidates: locatorMetadata.locatorCandidates,
       text: safeText(element.innerText || element.textContent || "")
     };
+  }
+
+  function getElementKey(element) {
+    if (!element || typeof element !== "object") {
+      return "";
+    }
+    const existingKey = elementKeys.get(element);
+    if (existingKey) {
+      return existingKey;
+    }
+    elementKeyCounter += 1;
+    const nextKey = `field-${elementKeyCounter}`;
+    elementKeys.set(element, nextKey);
+    return nextKey;
+  }
+
+  function isSensitiveElement(element) {
+    if (!element || element.tagName !== "INPUT") {
+      return false;
+    }
+    const inputType = (element.getAttribute("type") || "text").toLowerCase();
+    return inputType === "password";
+  }
+
+  function isRecordableFormElement(element) {
+    return Boolean(element && ["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName));
+  }
+
+  function getFieldAction(element) {
+    return element?.tagName === "SELECT" ? "select" : "type";
+  }
+
+  function buildFieldDetails(element) {
+    const rawValue = String(element?.value ?? "");
+    return {
+      value: readElementValue(element),
+      inputType: (element?.getAttribute?.("type") || "").toLowerCase(),
+      isSensitive: isSensitiveElement(element),
+      maskedLength: isSensitiveElement(element) ? rawValue.length : 0
+    };
+  }
+
+  function shouldSkipDuplicateFieldEvent(element, action, details) {
+    const elementKey = getElementKey(element);
+    const previous = lastFieldEventByKey.get(elementKey);
+    const signature = JSON.stringify({
+      action,
+      value: details.value,
+      inputType: details.inputType,
+      maskedLength: details.maskedLength
+    });
+
+    if (previous && previous.signature === signature && Date.now() - previous.at < 1200) {
+      return true;
+    }
+
+    lastFieldEventByKey.set(elementKey, {
+      signature,
+      at: Date.now()
+    });
+    return false;
+  }
+
+  function commitFieldEvent(element) {
+    if (!state.isRecording || !isRecordableFormElement(element)) {
+      return;
+    }
+
+    const details = buildFieldDetails(element);
+    const action = getFieldAction(element);
+    if (shouldSkipDuplicateFieldEvent(element, action, details)) {
+      return;
+    }
+
+    recordEvent("change", action, element, details);
+  }
+
+  function clearPendingFieldEvent(element) {
+    const elementKey = getElementKey(element);
+    const pending = pendingFieldEvents.get(elementKey);
+    if (!pending) {
+      return;
+    }
+    window.clearTimeout(pending.timerId);
+    pendingFieldEvents.delete(elementKey);
+  }
+
+  function queueFieldEvent(element) {
+    if (!state.isRecording || !isRecordableFormElement(element)) {
+      return;
+    }
+
+    const elementKey = getElementKey(element);
+    clearPendingFieldEvent(element);
+    const timerId = window.setTimeout(() => {
+      pendingFieldEvents.delete(elementKey);
+      commitFieldEvent(element);
+    }, 350);
+
+    pendingFieldEvents.set(elementKey, { timerId, element });
+  }
+
+  function flushPendingFieldEvents() {
+    for (const [elementKey, pending] of pendingFieldEvents.entries()) {
+      window.clearTimeout(pending.timerId);
+      pendingFieldEvents.delete(elementKey);
+      commitFieldEvent(pending.element);
+    }
   }
 
   function recordEvent(type, action, element, details) {
@@ -578,23 +691,34 @@
       return;
     }
     const element = event.target;
-    if (!element || !["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName)) {
+    if (!isRecordableFormElement(element)) {
       return;
     }
-    recordEvent("change", element.tagName === "SELECT" ? "select" : "type", element, {
-      value: readElementValue(element),
-      inputType: (element.getAttribute("type") || "").toLowerCase()
-    });
+    clearPendingFieldEvent(element);
+    commitFieldEvent(element);
+  }
+
+  function handleInput(event) {
+    if (isPickerActive) {
+      return;
+    }
+    const element = event.target;
+    if (!isRecordableFormElement(element)) {
+      return;
+    }
+    queueFieldEvent(element);
   }
 
   function handleSubmit(event) {
     if (isPickerActive) {
       return;
     }
+    flushPendingFieldEvents();
     recordEvent("submit", "submit", event.target, {});
   }
 
   document.addEventListener("click", handleClick, true);
+  document.addEventListener("input", handleInput, true);
   document.addEventListener("change", handleChange, true);
   document.addEventListener("submit", handleSubmit, true);
   window.addEventListener("pageshow", recordPageLoad);

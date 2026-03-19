@@ -459,6 +459,28 @@ function deleteEvent(eventId) {
   return { ok: true, count: recorderState.events.length };
 }
 
+function updateEvent(eventId, nextEvent) {
+  const eventIndex = recorderState.events.findIndex((event) => event.id === eventId);
+  if (eventIndex < 0) {
+    return { ok: false, error: "Event was not found." };
+  }
+
+  if (!nextEvent || typeof nextEvent !== "object") {
+    return { ok: false, error: "Updated event payload is invalid." };
+  }
+
+  const currentEvent = recorderState.events[eventIndex];
+  recorderState.events[eventIndex] = {
+    ...currentEvent,
+    ...nextEvent,
+    id: currentEvent.id,
+    sessionId: currentEvent.sessionId,
+    recordedAt: currentEvent.recordedAt
+  };
+  touchState();
+  return { ok: true, event: recorderState.events[eventIndex] };
+}
+
 async function startPicker(config) {
   const target = trackedTargets.get(selectedTargetId);
   if (!target) {
@@ -620,6 +642,13 @@ const server = http.createServer(async (request, response) => {
       const body = await readRequestBody(request);
       const result = deleteEvent(body.eventId);
       sendJson(response, result.ok ? 200 : 404, result);
+      return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/event/update") {
+      const body = await readRequestBody(request);
+      const result = updateEvent(body.eventId, body.event);
+      sendJson(response, result.ok ? 200 : 400, result);
       return;
     }
 

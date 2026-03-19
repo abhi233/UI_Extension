@@ -1,14 +1,24 @@
 const statusText = document.getElementById("statusText");
 const eventCountValue = document.getElementById("eventCountValue");
 const selectedTargetLabel = document.getElementById("selectedTargetLabel");
+const recordingNameValue = document.getElementById("recordingNameValue");
 const statusPill = document.getElementById("statusPill");
 const modeHint = document.getElementById("modeHint");
 const validationSummary = document.getElementById("validationSummary");
 const message = document.getElementById("message");
 const commandHint = document.getElementById("commandHint");
+const timelineCount = document.getElementById("timelineCount");
+const timelineList = document.getElementById("timelineList");
+const timelineSearchInput = document.getElementById("timelineSearchInput");
+const timelineFilterSelect = document.getElementById("timelineFilterSelect");
+const summaryGrid = document.getElementById("summaryGrid");
+const eventEditor = document.getElementById("eventEditor");
+const saveEventBtn = document.getElementById("saveEventBtn");
+const resetEditorBtn = document.getElementById("resetEditorBtn");
 
 const startUrlInput = document.getElementById("startUrlInput");
 const targetSelect = document.getElementById("targetSelect");
+const recordingNameInput = document.getElementById("recordingNameInput");
 
 const launchChromeBtn = document.getElementById("launchChromeBtn");
 const connectChromeBtn = document.getElementById("connectChromeBtn");
@@ -48,6 +58,7 @@ let speechRecognition = null;
 let isListening = false;
 let refreshTimer = null;
 let lastCommandSource = "text";
+let selectedEventId = null;
 
 function titleCase(value) {
   return String(value || "")
@@ -143,6 +154,10 @@ function setValidationMode(mode) {
   updateValidationSummary();
 }
 
+function getSelectedTarget(state) {
+  return state?.targets?.find((target) => target.id === state.selectedTargetId) || null;
+}
+
 function populateTargetSelect(targets, selectedTargetId) {
   const previousValue = targetSelect.value;
   targetSelect.innerHTML = "";
@@ -164,12 +179,169 @@ function populateTargetSelect(targets, selectedTargetId) {
     targetSelect.appendChild(option);
   }
 
-  const nextValue = selectedTargetId || previousValue || targets[0].id;
-  targetSelect.value = nextValue;
+  targetSelect.value = selectedTargetId || previousValue || targets[0].id;
 }
 
-function getSelectedTarget(state) {
-  return state?.targets?.find((target) => target.id === state.selectedTargetId) || null;
+function getEventTitle(event) {
+  if (event.type === "validation") {
+    const validation = event.details?.validation;
+    if (validation?.mode === "table_bulk") {
+      return "Table bulk validation";
+    }
+    return titleCase(validation?.assertionType || "validation");
+  }
+  return `${titleCase(event.action || event.type)} event`;
+}
+
+function getEventMeta(event) {
+  if (event.type === "validation") {
+    const validation = event.details?.validation || {};
+    if (validation.mode === "table_bulk") {
+      return validation.tableScope?.columns?.length
+        ? `Columns: ${validation.tableScope.columns.join(", ")}`
+        : "Table scope recorded";
+    }
+    return validation.expectedValue ? `Expected: ${validation.expectedValue}` : "Uses current page value";
+  }
+
+  if (event.type === "change") {
+    return event.details?.value ? `Value: ${event.details.value}` : event.target?.text || event.url;
+  }
+
+  if (event.type === "navigation") {
+    return event.details?.toUrl || event.url;
+  }
+
+  return event.target?.text || event.target?.selector || event.url;
+}
+
+function buildTimelineSearchText(event) {
+  return [
+    event.type,
+    event.action,
+    event.command,
+    event.url,
+    event.title,
+    event.target?.selector,
+    event.target?.xpath,
+    event.target?.text,
+    getEventTitle(event),
+    getEventMeta(event)
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function getFilteredEvents(events) {
+  const searchTerm = timelineSearchInput.value.trim().toLowerCase();
+  const actionFilter = timelineFilterSelect.value;
+
+  return events.filter((event) => {
+    if (actionFilter !== "all" && (event.action || event.type) !== actionFilter) {
+      return false;
+    }
+    if (!searchTerm) {
+      return true;
+    }
+    return buildTimelineSearchText(event).includes(searchTerm);
+  });
+}
+
+function renderSummary(events) {
+  summaryGrid.innerHTML = "";
+  const counts = new Map();
+  for (const event of events) {
+    const key = event.action || event.type || "unknown";
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  const summaryEntries = counts.size
+    ? Array.from(counts.entries()).sort((left, right) => right[1] - left[1])
+    : [["events", 0]];
+
+  for (const [label, count] of summaryEntries) {
+    const card = document.createElement("div");
+    card.className = "summary-card";
+
+    const cardLabel = document.createElement("span");
+    cardLabel.className = "summary-card-label";
+    cardLabel.textContent = titleCase(label);
+
+    const cardValue = document.createElement("span");
+    cardValue.className = "summary-card-value";
+    cardValue.textContent = String(count);
+
+    card.append(cardLabel, cardValue);
+    summaryGrid.appendChild(card);
+  }
+}
+
+function syncEditorWithSelectedEvent(events) {
+  const selectedEvent = events.find((event) => event.id === selectedEventId) || null;
+  if (!selectedEvent) {
+    selectedEventId = null;
+    eventEditor.value = "";
+    saveEventBtn.disabled = true;
+    resetEditorBtn.disabled = true;
+    return;
+  }
+
+  eventEditor.value = JSON.stringify(selectedEvent, null, 2);
+  saveEventBtn.disabled = false;
+  resetEditorBtn.disabled = false;
+}
+
+function renderTimeline(events) {
+  const filteredEvents = getFilteredEvents(events);
+  timelineList.innerHTML = "";
+  timelineCount.textContent = String(filteredEvents.length);
+
+  if (!filteredEvents.length) {
+    const emptyState = document.createElement("div");
+    emptyState.className = "timeline-empty";
+    emptyState.textContent = events.length
+      ? "No steps match the current filter."
+      : "No recorded steps yet. Start a session and interact with the target page.";
+    timelineList.appendChild(emptyState);
+    return;
+  }
+
+  const recentEvents = [...filteredEvents].reverse();
+  for (const event of recentEvents) {
+    const item = document.createElement("article");
+    item.className = "timeline-item";
+    if (event.id === selectedEventId) {
+      item.classList.add("selected");
+    }
+    item.dataset.eventId = event.id;
+
+    const head = document.createElement("div");
+    head.className = "timeline-item-head";
+
+    const type = document.createElement("span");
+    type.className = "timeline-item-type";
+    type.textContent = event.action || event.type;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "timeline-delete";
+    removeBtn.textContent = "Delete";
+    removeBtn.dataset.eventId = event.id;
+
+    head.append(type, removeBtn);
+
+    const title = document.createElement("div");
+    title.className = "timeline-title";
+    title.textContent = getEventTitle(event);
+
+    const meta = document.createElement("div");
+    meta.className = "timeline-meta";
+    meta.textContent = getEventMeta(event);
+
+    item.append(head, title, meta);
+    timelineList.appendChild(item);
+  }
 }
 
 function updateNaturalLanguageSummary() {
@@ -197,22 +369,28 @@ function applyState(state) {
   const browserConnected = Boolean(state?.browser?.connected);
   const events = state?.session?.events?.length || 0;
   const selectedTarget = getSelectedTarget(state);
+  const hasRecordingName = Boolean(recordingNameInput.value.trim());
 
   statusText.textContent = isRecording ? "Recording" : browserConnected ? "Ready" : "Disconnected";
   eventCountValue.textContent = String(events);
   selectedTargetLabel.textContent = selectedTarget ? selectedTarget.title : "None";
+  recordingNameValue.textContent = state?.session?.recordingName || "Not started";
+  if (!recordingNameInput.value && !isRecording && !events) {
+    recordingNameInput.value = state?.session?.recordingName || "";
+  }
   updateStatusPill(browserConnected ? (isRecording ? "recording" : "idle") : "error");
 
   populateTargetSelect(state.targets || [], state.selectedTargetId);
+  renderSummary(state.session?.events || []);
+  renderTimeline(state.session?.events || []);
+  syncEditorWithSelectedEvent(state.session?.events || []);
 
-  startSessionBtn.disabled = !browserConnected || isRecording || !(state.targets || []).length;
+  startSessionBtn.disabled = !browserConnected || isRecording || !(state.targets || []).length || !hasRecordingName;
   stopSessionBtn.disabled = !isRecording;
   clearSessionBtn.disabled = events === 0;
   pickValidationBtn.disabled = !isRecording || !selectedTarget;
   addCommandBtn.disabled = !isRecording || !selectedTarget;
   exportBtn.disabled = events === 0;
-  launchChromeBtn.disabled = false;
-  connectChromeBtn.disabled = false;
 
   updateListeningUi();
 }
@@ -276,8 +454,18 @@ async function selectTarget() {
 }
 
 async function startSession() {
+  const recordingName = recordingNameInput.value.trim();
+  if (!recordingName) {
+    setMessage("Give the recording a name before starting the session.", "error");
+    recordingNameInput.focus();
+    return;
+  }
+
   try {
-    await apiRequest("/api/session/start", { method: "POST" });
+    await apiRequest("/api/session/start", {
+      method: "POST",
+      body: { recordingName }
+    });
     setMessage("Recording started for the selected Chrome page set.", "success");
     await refreshState();
   } catch (error) {
@@ -288,7 +476,7 @@ async function startSession() {
 async function stopSession() {
   try {
     await apiRequest("/api/session/stop", { method: "POST" });
-    setMessage("Recording stopped. Export or clear the captured session.", "success");
+    setMessage("Recording stopped. Review steps, then export.", "success");
     await refreshState();
   } catch (error) {
     setMessage(String(error.message || error), "error");
@@ -303,6 +491,61 @@ async function clearSession() {
   } catch (error) {
     setMessage(String(error.message || error), "error");
   }
+}
+
+async function deleteEvent(eventId) {
+  try {
+    await apiRequest("/api/event/delete", {
+      method: "POST",
+      body: { eventId }
+    });
+    if (selectedEventId === eventId) {
+      selectedEventId = null;
+    }
+    setMessage("Event removed from the session.", "success");
+    await refreshState();
+  } catch (error) {
+    setMessage(String(error.message || error), "error");
+  }
+}
+
+async function saveSelectedEvent() {
+  if (!selectedEventId) {
+    setMessage("Select a step before saving changes.", "error");
+    return;
+  }
+
+  let parsedEvent;
+  try {
+    parsedEvent = JSON.parse(eventEditor.value);
+  } catch (error) {
+    setMessage("Step JSON is invalid. Fix the JSON before saving.", "error");
+    return;
+  }
+
+  try {
+    await apiRequest("/api/event/update", {
+      method: "POST",
+      body: {
+        eventId: selectedEventId,
+        event: parsedEvent
+      }
+    });
+    setMessage("Step updated in the session.", "success");
+    await refreshState();
+  } catch (error) {
+    setMessage(String(error.message || error), "error");
+  }
+}
+
+function resetEditor() {
+  syncEditorWithSelectedEvent(currentState?.session?.events || []);
+}
+
+function selectTimelineEvent(eventId) {
+  selectedEventId = eventId;
+  renderTimeline(currentState?.session?.events || []);
+  syncEditorWithSelectedEvent(currentState?.session?.events || []);
 }
 
 function buildValidationPayload() {
@@ -452,7 +695,8 @@ async function exportJson() {
     const payload = await response.text();
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const filename = `ui-recorder-${currentState?.session?.sessionId || Date.now()}.json`;
+    const filenameBase = currentState?.session?.recordingName || currentState?.session?.sessionId || "ui-recorder";
+    const filename = `${filenameBase.replace(/[^a-z0-9-_]+/gi, "_")}.json`;
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = filename;
@@ -474,6 +718,20 @@ pickValidationBtn.addEventListener("click", pickValidationTarget);
 addCommandBtn.addEventListener("click", addCommandEvent);
 listenBtn.addEventListener("click", toggleListening);
 exportBtn.addEventListener("click", exportJson);
+
+timelineList.addEventListener("click", (event) => {
+  const deleteButton = event.target.closest(".timeline-delete[data-event-id]");
+  if (deleteButton) {
+    void deleteEvent(deleteButton.dataset.eventId);
+    return;
+  }
+
+  const timelineItem = event.target.closest(".timeline-item[data-event-id]");
+  if (!timelineItem) {
+    return;
+  }
+  selectTimelineEvent(timelineItem.dataset.eventId);
+});
 
 modeSingleBtn.addEventListener("click", () => setValidationMode("single"));
 modeTableBtn.addEventListener("click", () => setValidationMode("table_bulk"));
@@ -506,9 +764,28 @@ nlCommandInput.addEventListener("input", () => {
   updateNaturalLanguageSummary();
 });
 
+recordingNameInput.addEventListener("input", () => {
+  if (currentState) {
+    applyState(currentState);
+  }
+});
+
+timelineSearchInput.addEventListener("input", () => {
+  renderTimeline(currentState?.session?.events || []);
+});
+
+timelineFilterSelect.addEventListener("change", () => {
+  renderTimeline(currentState?.session?.events || []);
+});
+
+saveEventBtn.addEventListener("click", saveSelectedEvent);
+resetEditorBtn.addEventListener("click", resetEditor);
+
 setValidationMode("single");
 initializeSpeechRecognition();
 updateNaturalLanguageSummary();
-setMessage("Launch or connect to Chrome, start recording, then capture actions and validations.", "");
+saveEventBtn.disabled = true;
+resetEditorBtn.disabled = true;
+setMessage("Launch or connect to Chrome, give the session a name, then start recording.", "");
 startRefreshLoop();
 void refreshState();

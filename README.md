@@ -1,4 +1,4 @@
-# UI-Recorder (Chrome Extension)
+# UI-Recorder
 
 This extension records browser actions and manual validation commands, then exports a JSON file that can be converted into Selenium code by your internal Codex workflow.
 
@@ -25,11 +25,16 @@ The standalone app keeps the same JSON schema and supports:
 - table bulk validations
 - text command validations
 - voice command capture through the standalone UI
+- named recordings
+- recorded-step review with delete before export
+- step search, action filters, and a session summary
+- inline JSON step editing before export
 
 ## What It Captures
 
 - Click events
 - Field changes (`input`, `textarea`, `select`)
+- Password typing events are recorded with masked values
 - Form submit
 - Page load marker
 - Navigation event (`type: navigation`) when tab URL changes

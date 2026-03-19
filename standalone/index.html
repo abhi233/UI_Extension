@@ -166,6 +166,16 @@
         </section>
 
         <aside class="side-column">
+          <section class="panel summary-panel">
+            <div class="timeline-head">
+              <div>
+                <h2>Playback Summary</h2>
+                <p>Quick counts by action type for the current session.</p>
+              </div>
+            </div>
+            <div id="summaryGrid" class="summary-grid"></div>
+          </section>
+
           <section class="panel timeline-panel">
             <div class="timeline-head">
               <div>
@@ -174,7 +184,34 @@
               </div>
               <span id="timelineCount" class="timeline-count">0</span>
             </div>
+            <div class="timeline-toolbar">
+              <input id="timelineSearchInput" type="text" placeholder="Search steps" />
+              <select id="timelineFilterSelect">
+                <option value="all">All Actions</option>
+                <option value="click">Click</option>
+                <option value="type">Type</option>
+                <option value="select">Select</option>
+                <option value="validate">Validate</option>
+                <option value="navigate">Navigate</option>
+                <option value="load">Load</option>
+                <option value="submit">Submit</option>
+              </select>
+            </div>
             <div id="timelineList" class="timeline-list"></div>
+          </section>
+
+          <section class="panel editor-panel">
+            <div class="timeline-head">
+              <div>
+                <h2>Step Editor</h2>
+                <p>Select a step, edit its JSON, then save it back into the session.</p>
+              </div>
+            </div>
+            <textarea id="eventEditor" rows="14" spellcheck="false" placeholder="Select a step from the timeline to edit its JSON."></textarea>
+            <div class="command-toolbar">
+              <button id="saveEventBtn" class="primary">Save Step</button>
+              <button id="resetEditorBtn" class="ghost">Reset</button>
+            </div>
           </section>
         </aside>
       </div>
