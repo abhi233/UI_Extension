@@ -363,13 +363,12 @@
       inputType: details.inputType
     });
 
-    if (previous && previous.signature === signature && Date.now() - previous.at < 1200) {
+    if (previous && previous.signature === signature) {
       return true;
     }
 
     lastFieldEventByKey.set(elementKey, {
-      signature,
-      at: Date.now()
+      signature
     });
     return false;
   }
@@ -411,10 +410,9 @@
     if (!isRecordableFormElement(activeElement)) {
       return;
     }
-    if (!dirtyFieldElements.has(getElementKey(activeElement))) {
-      return;
-    }
-    commitFieldEvent(activeElement, dirtyFieldElements.get(getElementKey(activeElement)));
+    const elementKey = getElementKey(activeElement);
+    const existingSnapshot = dirtyFieldElements.get(elementKey);
+    commitFieldEvent(activeElement, existingSnapshot || buildFieldSnapshot(activeElement));
   }
 
   function recordEvent(type, action, element, details) {
@@ -825,7 +823,22 @@
   document.addEventListener("change", handleChange, true);
   document.addEventListener("focusout", handleFocusOut, true);
   document.addEventListener("submit", handleSubmit, true);
-  window.addEventListener("beforeunload", flushDirtyFieldEvents, true);
+  window.addEventListener(
+    "beforeunload",
+    () => {
+      flushActiveFieldEvent();
+      flushDirtyFieldEvents();
+    },
+    true
+  );
+  window.addEventListener(
+    "pagehide",
+    () => {
+      flushActiveFieldEvent();
+      flushDirtyFieldEvents();
+    },
+    true
+  );
   window.addEventListener("pageshow", recordPageLoad);
 
   window.__uiRecorderSetState = function (nextState) {
