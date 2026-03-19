@@ -346,6 +346,14 @@
     };
   }
 
+  function buildFieldSnapshot(element) {
+    return {
+      element,
+      action: getFieldAction(element),
+      details: buildFieldDetails(element)
+    };
+  }
+
   function shouldSkipDuplicateFieldEvent(element, action, details) {
     const elementKey = getElementKey(element);
     const previous = lastFieldEventByKey.get(elementKey);
@@ -366,29 +374,20 @@
     return false;
   }
 
-  function commitFieldEvent(element) {
-    if (!state.isRecording || !isRecordableFormElement(element)) {
+  function commitFieldEvent(element, snapshotOverride = null) {
+    const snapshot = snapshotOverride || buildFieldSnapshot(element);
+    if (!state.isRecording || !isRecordableFormElement(snapshot?.element)) {
       return;
     }
 
-    const elementKey = getElementKey(element);
-    const details = buildFieldDetails(element);
-    const action = getFieldAction(element);
-    if (shouldSkipDuplicateFieldEvent(element, action, details)) {
+    const elementKey = getElementKey(snapshot.element);
+    if (shouldSkipDuplicateFieldEvent(snapshot.element, snapshot.action, snapshot.details)) {
       dirtyFieldElements.delete(elementKey);
       return;
     }
 
     dirtyFieldElements.delete(elementKey);
-    recordEvent("change", action, element, details);
-  }
-
-  function clearDirtyField(element) {
-    const elementKey = getElementKey(element);
-    if (!dirtyFieldElements.has(elementKey)) {
-      return;
-    }
-    dirtyFieldElements.delete(elementKey);
+    recordEvent("change", snapshot.action, snapshot.element, snapshot.details);
   }
 
   function markFieldDirty(element) {
@@ -397,13 +396,13 @@
     }
 
     const elementKey = getElementKey(element);
-    dirtyFieldElements.set(elementKey, element);
+    dirtyFieldElements.set(elementKey, buildFieldSnapshot(element));
   }
 
   function flushDirtyFieldEvents() {
-    for (const [elementKey, element] of dirtyFieldElements.entries()) {
+    for (const [elementKey, snapshot] of dirtyFieldElements.entries()) {
       dirtyFieldElements.delete(elementKey);
-      commitFieldEvent(element);
+      commitFieldEvent(snapshot.element, snapshot);
     }
   }
 
@@ -415,7 +414,7 @@
     if (!dirtyFieldElements.has(getElementKey(activeElement))) {
       return;
     }
-    commitFieldEvent(activeElement);
+    commitFieldEvent(activeElement, dirtyFieldElements.get(getElementKey(activeElement)));
   }
 
   function recordEvent(type, action, element, details) {
@@ -756,10 +755,8 @@
     if (!isRecordableFormElement(element)) {
       return;
     }
-    if (!dirtyFieldElements.has(getElementKey(element))) {
-      return;
-    }
-    commitFieldEvent(element);
+    const existingSnapshot = dirtyFieldElements.get(getElementKey(element));
+    commitFieldEvent(element, existingSnapshot || buildFieldSnapshot(element));
   }
 
   function handleChange(event) {
@@ -770,10 +767,8 @@
     if (!isRecordableFormElement(element)) {
       return;
     }
-    if (!dirtyFieldElements.has(getElementKey(element))) {
-      return;
-    }
-    commitFieldEvent(element);
+    const existingSnapshot = dirtyFieldElements.get(getElementKey(element));
+    commitFieldEvent(element, existingSnapshot || buildFieldSnapshot(element));
   }
 
   function handleInput(event) {
@@ -800,6 +795,20 @@
     markFieldDirty(element);
   }
 
+  function handleKeyDown(event) {
+    if (isPickerActive || String(event?.key || "") !== "Enter") {
+      return;
+    }
+
+    const element = getEventSourceElement(event) || getDeepActiveElement(document);
+    if (!isRecordableFormElement(element)) {
+      return;
+    }
+
+    const existingSnapshot = dirtyFieldElements.get(getElementKey(element));
+    commitFieldEvent(element, existingSnapshot || buildFieldSnapshot(element));
+  }
+
   function handleSubmit(event) {
     if (isPickerActive) {
       return;
@@ -810,6 +819,7 @@
   }
 
   document.addEventListener("click", handleClick, true);
+  document.addEventListener("keydown", handleKeyDown, true);
   document.addEventListener("input", handleInput, true);
   document.addEventListener("keyup", handleKeyUp, true);
   document.addEventListener("change", handleChange, true);

@@ -169,6 +169,7 @@ async function fetchJson(url) {
 class CDPTargetSession {
   constructor(targetInfo) {
     this.id = targetInfo.id;
+    this.type = targetInfo.type || "page";
     this.title = targetInfo.title || "";
     this.url = targetInfo.url || "";
     this.webSocketDebuggerUrl = targetInfo.webSocketDebuggerUrl;
@@ -178,6 +179,7 @@ class CDPTargetSession {
     this.nextId = 1;
     this.pending = new Map();
     this.connected = false;
+    this.childSessions = new Map();
   }
 
   async connect() {
@@ -216,6 +218,11 @@ class CDPTargetSession {
   async initialize() {
     await this.send("Page.enable");
     await this.send("Runtime.enable");
+    await this.send("Target.setAutoAttach", {
+      autoAttach: true,
+      waitForDebuggerOnStart: false,
+      flatten: true
+    });
     try {
       await this.send("Runtime.addBinding", { name: BINDING_NAME });
     } catch (error) {
@@ -226,13 +233,18 @@ class CDPTargetSession {
     await applyRecorderStateToTarget(this);
   }
 
-  send(method, params = {}) {
+  send(method, params = {}, sessionId = null) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       return Promise.reject(new Error(`Socket is not open for target ${this.id}.`));
     }
 
     const id = this.nextId++;
-    const payload = JSON.stringify({ id, method, params });
+    const payload = JSON.stringify({
+      id,
+      method,
+      params,
+      ...(sessionId ? { sessionId } : {})
+    });
 
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
@@ -240,7 +252,7 @@ class CDPTargetSession {
     });
   }
 
-  async evaluateFunction(functionName, args = []) {
+  async evaluateFunction(functionName, args = [], sessionId = null) {
     const expression = `(() => {
       const fn = window[${JSON.stringify(functionName)}];
       if (typeof fn === "function") {
@@ -253,7 +265,29 @@ class CDPTargetSession {
       expression,
       awaitPromise: true,
       returnByValue: true
-    });
+    }, sessionId);
+  }
+
+  async initializeAttachedSession(sessionId) {
+    await this.send("Page.enable", {}, sessionId).catch(() => null);
+    await this.send("Runtime.enable", {}, sessionId);
+    try {
+      await this.send("Runtime.addBinding", { name: BINDING_NAME }, sessionId);
+    } catch (error) {
+      void error;
+    }
+    await this.send("Page.addScriptToEvaluateOnNewDocument", { source: injectedSource }, sessionId).catch(() => null);
+    await this.send("Runtime.evaluate", { expression: injectedSource }, sessionId).catch(() => null);
+    await applyRecorderStateToTarget(this, sessionId);
+  }
+
+  async startPicker(config) {
+    await this.evaluateFunction("__uiRecorderStartPicker", [config || {}]);
+    await Promise.all(
+      Array.from(this.childSessions.keys()).map((sessionId) =>
+        this.evaluateFunction("__uiRecorderStartPicker", [config || {}], sessionId).catch(() => null)
+      )
+    );
   }
 
   handleMessage(rawMessage) {
@@ -274,19 +308,57 @@ class CDPTargetSession {
     }
 
     if (message.method === "Runtime.bindingCalled" && message.params?.name === BINDING_NAME) {
-      this.handleBindingEvent(message.params.payload);
+      this.handleBindingEvent(message.params.payload, message.sessionId || null);
       return;
     }
 
     if (message.method === "Page.frameNavigated") {
       const frame = message.params?.frame;
-      if (frame && !frame.parentId) {
+      if (message.sessionId && frame) {
+        const childSession = this.childSessions.get(message.sessionId);
+        if (childSession) {
+          childSession.url = frame.url || childSession.url;
+          childSession.title = frame.name || childSession.title;
+        }
+      }
+      if (frame && !frame.parentId && !message.sessionId) {
         this.handleMainFrameNavigation(frame.url || "");
       }
     }
+
+    if (message.method === "Target.attachedToTarget") {
+      this.handleAttachedToTarget(message.params);
+      return;
+    }
+
+    if (message.method === "Target.detachedFromTarget") {
+      this.childSessions.delete(message.params?.sessionId);
+    }
   }
 
-  handleBindingEvent(rawPayload) {
+  async handleAttachedToTarget(params) {
+    const sessionId = params?.sessionId;
+    const targetInfo = params?.targetInfo;
+    if (!sessionId || !targetInfo || targetInfo.type !== "iframe") {
+      return;
+    }
+
+    this.childSessions.set(sessionId, {
+      sessionId,
+      targetId: targetInfo.targetId || null,
+      type: targetInfo.type,
+      url: targetInfo.url || "",
+      title: targetInfo.title || ""
+    });
+
+    try {
+      await this.initializeAttachedSession(sessionId);
+    } catch (error) {
+      void error;
+    }
+  }
+
+  handleBindingEvent(rawPayload, sessionId = null) {
     let bindingMessage;
     try {
       bindingMessage = JSON.parse(rawPayload);
@@ -295,11 +367,30 @@ class CDPTargetSession {
     }
 
     if (bindingMessage?.eventType === "recorder-event") {
-      this.url = bindingMessage.payload?.url || this.url;
-      this.title = bindingMessage.payload?.title || this.title;
+      const childSession = sessionId ? this.childSessions.get(sessionId) : null;
+      if (childSession) {
+        childSession.url = bindingMessage.payload?.url || childSession.url;
+        childSession.title = bindingMessage.payload?.title || childSession.title;
+      } else {
+        this.url = bindingMessage.payload?.url || this.url;
+        this.title = bindingMessage.payload?.title || this.title;
+      }
       logEvent({
         ...bindingMessage.payload,
-        pageTargetId: this.id
+        pageTargetId: this.id,
+        details: {
+          ...(bindingMessage.payload?.details || {}),
+          ...(childSession
+            ? {
+                frameContext: {
+                  sessionId,
+                  targetId: childSession.targetId,
+                  type: childSession.type,
+                  url: childSession.url || bindingMessage.payload?.url || ""
+                }
+              }
+            : {})
+        }
       });
     }
   }
@@ -337,21 +428,28 @@ class CDPTargetSession {
   }
 }
 
-async function applyRecorderStateToTarget(target) {
+async function applyRecorderStateToTarget(target, sessionId = null) {
   try {
     await target.evaluateFunction("__uiRecorderSetState", [
       {
         isRecording: recorderState.isRecording && (!recorderState.recordingTargetId || recorderState.recordingTargetId === target.id),
         sessionId: recorderState.sessionId
       }
-    ]);
+    ], sessionId);
   } catch (error) {
     void error;
   }
 }
 
 async function applyRecorderStateToAllTargets() {
-  await Promise.all(Array.from(trackedTargets.values()).map((target) => applyRecorderStateToTarget(target)));
+  await Promise.all(
+    Array.from(trackedTargets.values()).map(async (target) => {
+      await applyRecorderStateToTarget(target);
+      await Promise.all(
+        Array.from(target.childSessions.keys()).map((sessionId) => applyRecorderStateToTarget(target, sessionId))
+      );
+    })
+  );
 }
 
 function getTargetSummaries() {
@@ -596,7 +694,7 @@ async function startPicker(config) {
   if (!target) {
     throw new Error("No page target selected.");
   }
-  await target.evaluateFunction("__uiRecorderStartPicker", [config || {}]);
+  await target.startPicker(config || {});
 }
 
 function getStateResponse() {
