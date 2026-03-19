@@ -312,6 +312,29 @@
     return Boolean(element && ["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName));
   }
 
+  function shouldTrackKeyup(event) {
+    const ignoredKeys = new Set([
+      "Shift",
+      "Control",
+      "Alt",
+      "Meta",
+      "CapsLock",
+      "Escape",
+      "Tab",
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "PageUp",
+      "PageDown",
+      "Home",
+      "End",
+      "Insert"
+    ]);
+
+    return !ignoredKeys.has(String(event?.key || ""));
+  }
+
   function getFieldAction(element) {
     return element?.tagName === "SELECT" ? "select" : "type";
   }
@@ -764,6 +787,19 @@
     markFieldDirty(element);
   }
 
+  function handleKeyUp(event) {
+    if (isPickerActive || !shouldTrackKeyup(event)) {
+      return;
+    }
+
+    const element = getEventSourceElement(event) || getDeepActiveElement(document);
+    if (!isRecordableFormElement(element)) {
+      return;
+    }
+
+    markFieldDirty(element);
+  }
+
   function handleSubmit(event) {
     if (isPickerActive) {
       return;
@@ -775,6 +811,7 @@
 
   document.addEventListener("click", handleClick, true);
   document.addEventListener("input", handleInput, true);
+  document.addEventListener("keyup", handleKeyUp, true);
   document.addEventListener("change", handleChange, true);
   document.addEventListener("focusout", handleFocusOut, true);
   document.addEventListener("submit", handleSubmit, true);
