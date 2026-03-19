@@ -12,36 +12,112 @@
         <div>
           <p class="eyebrow">Standalone Recorder</p>
           <h1>UI-Recorder</h1>
-          <p class="hero-copy">Record browser steps without installing an extension. The exported JSON matches the current recorder schema for Selenium generation.</p>
+          <p class="hero-copy">Record browser steps without an extension. Review the live session, add command-driven actions, and export JSON that is ready for Selenium conversion.</p>
         </div>
-        <div id="statusPill" class="status-pill idle">Idle</div>
+        <div class="hero-status">
+          <div id="statusPill" class="status-pill idle">Idle</div>
+          <div class="shortcut-chip">Ctrl+R Record</div>
+          <div class="shortcut-chip">Ctrl+K AI</div>
+          <div class="shortcut-chip">Ctrl+E Export</div>
+        </div>
       </header>
 
+      <nav class="workflow-bar" aria-label="Recorder workflow">
+        <button type="button" class="workflow-step active" data-step="browser" data-scroll-target="browserSection">
+          <span class="workflow-index">1</span>
+          <span class="workflow-copy">
+            <strong>Browser</strong>
+            <small>Launch or connect</small>
+          </span>
+        </button>
+        <button type="button" class="workflow-step" data-step="record" data-scroll-target="sessionSection">
+          <span class="workflow-index">2</span>
+          <span class="workflow-copy">
+            <strong>Record</strong>
+            <small>Name and start</small>
+          </span>
+        </button>
+        <button type="button" class="workflow-step" data-step="validate" data-scroll-target="validateSection">
+          <span class="workflow-index">3</span>
+          <span class="workflow-copy">
+            <strong>Validate</strong>
+            <small>Pick assertions</small>
+          </span>
+        </button>
+        <button type="button" class="workflow-step" data-step="command" data-scroll-target="commandSection">
+          <span class="workflow-index">4</span>
+          <span class="workflow-copy">
+            <strong>AI Command</strong>
+            <small>Text or voice</small>
+          </span>
+        </button>
+        <button type="button" class="workflow-step" data-step="export" data-scroll-target="exportSection">
+          <span class="workflow-index">5</span>
+          <span class="workflow-copy">
+            <strong>Export</strong>
+            <small>Review and download</small>
+          </span>
+        </button>
+      </nav>
+
       <section class="panel stats-panel">
-        <div class="stat-card">
+        <button type="button" class="stat-card stat-button" data-scroll-target="sessionSection">
           <span class="stat-label">Recording</span>
           <strong id="recordingNameValue" class="stat-value">Not started</strong>
-        </div>
-        <div class="stat-card">
+        </button>
+        <button type="button" class="stat-card stat-button" data-scroll-target="timelinePanel">
           <span class="stat-label">Events</span>
           <strong id="eventCountValue" class="stat-value">0</strong>
-        </div>
-        <div class="stat-card">
+        </button>
+        <button type="button" class="stat-card stat-button" data-scroll-target="browserSection">
           <span class="stat-label">Target Page</span>
           <strong id="selectedTargetLabel" class="stat-value">None</strong>
-        </div>
-        <div class="stat-card">
+        </button>
+        <button type="button" class="stat-card stat-button" data-scroll-target="commandSection">
           <span class="stat-label">Ready State</span>
           <strong id="statusText" class="stat-value">Idle</strong>
-        </div>
+        </button>
       </section>
 
-      <div class="workspace-grid">
+      <div class="app-grid">
+        <aside class="left-rail">
+          <button type="button" class="rail-link active" data-scroll-target="livePanel">Recorder</button>
+          <button type="button" class="rail-link" data-scroll-target="timelinePanel">Steps</button>
+          <button type="button" class="rail-link" data-scroll-target="commandSection">AI</button>
+          <button type="button" class="rail-link" data-scroll-target="editorPanel">Editor</button>
+          <button type="button" class="rail-link" data-scroll-target="exportSection">Export</button>
+        </aside>
+
         <section class="main-column">
-          <section class="panel compact-panel">
+          <section id="livePanel" class="panel live-panel">
+            <div class="live-head">
+              <div>
+                <p class="panel-kicker">Live Recorder</p>
+                <h2>Current Session</h2>
+              </div>
+              <div class="live-indicator">
+                <span id="recordingDot" class="live-dot"></span>
+                <span id="liveStateLabel">Idle</span>
+              </div>
+            </div>
+            <div class="live-grid">
+              <div class="live-card">
+                <span class="live-label">Current page</span>
+                <strong id="liveTargetTitle" class="live-value">No page selected</strong>
+                <span id="liveTargetUrl" class="live-meta">Launch or connect Chrome to begin.</span>
+              </div>
+              <div class="live-card">
+                <span class="live-label">Recorder mode</span>
+                <strong id="liveModeValue" class="live-value">Waiting for session</strong>
+                <span id="liveHint" class="live-meta">Start with Browser, then Record, then review steps on the right.</span>
+              </div>
+            </div>
+          </section>
+
+          <section id="browserSection" class="panel compact-panel">
             <div class="section-head">
               <h2>1. Browser</h2>
-              <p>Launch a dedicated Chrome session with remote debugging, or connect to one already running on port 9222.</p>
+              <p>Launch a clean Chrome session or attach to an existing DevTools endpoint.</p>
             </div>
 
             <div class="compact-grid">
@@ -59,10 +135,10 @@
             <select id="targetSelect"></select>
           </section>
 
-          <section class="panel compact-panel">
+          <section id="sessionSection" class="panel compact-panel">
             <div class="section-head">
               <h2>2. Session</h2>
-              <p>Name the recording first, then start the session.</p>
+              <p>Name the recording first, then start the page-scoped session.</p>
             </div>
 
             <label for="recordingNameInput">Recording Name</label>
@@ -75,7 +151,7 @@
             </div>
           </section>
 
-          <section class="panel compact-panel validation-panel">
+          <section id="validateSection" class="panel compact-panel validation-panel">
             <div class="section-head">
               <h2>3. Validation Picker</h2>
               <p id="modeHint">Pick one element and record a single assertion like visible, text, value, or attribute.</p>
@@ -139,14 +215,18 @@
             </div>
           </section>
 
-          <section class="panel compact-panel command-panel">
+          <section id="commandSection" class="panel compact-panel command-panel">
             <div class="section-head">
-              <h2>4. Voice Or Text Command</h2>
-              <p>Turn a natural-language instruction into a structured validation event using the current JSON schema.</p>
+              <h2>4. AI Command Console</h2>
+              <p>Turn a natural-language instruction into a structured event using the current JSON schema.</p>
+            </div>
+
+            <div id="commandConsole" class="command-console">
+              <div class="command-bubble system">Supported: navigate, click, enter, visible/present validation, title, and URL commands.</div>
             </div>
 
             <label for="nlCommandInput">Command</label>
-            <textarea id="nlCommandInput" rows="3" placeholder="Examples: navigate to https://example.com, click login button, enter john into username field, validate login button is visible"></textarea>
+            <textarea id="nlCommandInput" rows="3" placeholder="Examples: navigate to https://example.com, click &quot;Sign In&quot; button by text, enter amittal into username by name"></textarea>
 
             <div class="command-toolbar">
               <button id="listenBtn" class="secondary">Start Listening</button>
@@ -156,7 +236,7 @@
             <p id="commandHint" class="summary-text">Supported now: navigate, click, enter, visible/present validation, title, and URL commands.</p>
           </section>
 
-          <section class="panel compact-panel export-panel">
+          <section id="exportSection" class="panel compact-panel export-panel">
             <div class="section-head">
               <h2>5. Export JSON</h2>
               <p>Download the current session in the same schema used by the extension.</p>
@@ -170,13 +250,13 @@
             <div class="timeline-head">
               <div>
                 <h2>Playback Summary</h2>
-                <p>Quick counts by action type for the current session.</p>
+                <p>Quick counts by action type for the current page session.</p>
               </div>
             </div>
             <div id="summaryGrid" class="summary-grid"></div>
           </section>
 
-          <section class="panel timeline-panel">
+          <section id="timelinePanel" class="panel timeline-panel">
             <div class="timeline-head">
               <div>
                 <h2>Recorded Steps</h2>
@@ -200,14 +280,31 @@
             <div id="timelineList" class="timeline-list"></div>
           </section>
 
-          <section class="panel editor-panel">
+          <section id="editorPanel" class="panel editor-panel">
             <div class="timeline-head">
               <div>
                 <h2>Step Editor</h2>
                 <p>Select a step, edit its JSON, then save it back into the session.</p>
               </div>
             </div>
+            <div id="stepInspector" class="step-inspector">
+              <div class="step-inspector-head">
+                <strong id="selectedStepTitle">No step selected</strong>
+                <span id="selectedStepAction" class="inspector-chip">Idle</span>
+              </div>
+              <div id="selectedStepMeta" class="step-inspector-meta">Choose a step from the timeline to inspect its target, action, and JSON payload.</div>
+            </div>
             <textarea id="eventEditor" rows="14" spellcheck="false" placeholder="Select a step from the timeline to edit its JSON."></textarea>
+            <div class="editor-toolbar">
+              <div class="editor-status-row">
+                <span id="editorDirtyState" class="editor-dirty-state">Clean</span>
+                <span id="editorLineCount" class="editor-line-count">0 lines</span>
+              </div>
+              <div class="command-toolbar">
+                <button id="copyEventBtn" class="secondary">Copy JSON</button>
+                <button id="formatEventBtn" class="ghost">Format</button>
+              </div>
+            </div>
             <div class="command-toolbar">
               <button id="saveEventBtn" class="primary">Save Step</button>
               <button id="resetEditorBtn" class="ghost">Reset</button>

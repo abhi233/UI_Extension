@@ -3,10 +3,14 @@ const eventCountValue = document.getElementById("eventCountValue");
 const selectedTargetLabel = document.getElementById("selectedTargetLabel");
 const recordingNameValue = document.getElementById("recordingNameValue");
 const statusPill = document.getElementById("statusPill");
+const workflowSteps = Array.from(document.querySelectorAll(".workflow-step"));
+const railLinks = Array.from(document.querySelectorAll(".rail-link"));
+const statButtons = Array.from(document.querySelectorAll(".stat-button"));
 const modeHint = document.getElementById("modeHint");
 const validationSummary = document.getElementById("validationSummary");
 const message = document.getElementById("message");
 const commandHint = document.getElementById("commandHint");
+const commandConsole = document.getElementById("commandConsole");
 const timelineCount = document.getElementById("timelineCount");
 const timelineList = document.getElementById("timelineList");
 const timelineSearchInput = document.getElementById("timelineSearchInput");
@@ -15,6 +19,19 @@ const summaryGrid = document.getElementById("summaryGrid");
 const eventEditor = document.getElementById("eventEditor");
 const saveEventBtn = document.getElementById("saveEventBtn");
 const resetEditorBtn = document.getElementById("resetEditorBtn");
+const copyEventBtn = document.getElementById("copyEventBtn");
+const formatEventBtn = document.getElementById("formatEventBtn");
+const selectedStepTitle = document.getElementById("selectedStepTitle");
+const selectedStepAction = document.getElementById("selectedStepAction");
+const selectedStepMeta = document.getElementById("selectedStepMeta");
+const editorDirtyState = document.getElementById("editorDirtyState");
+const editorLineCount = document.getElementById("editorLineCount");
+const liveTargetTitle = document.getElementById("liveTargetTitle");
+const liveTargetUrl = document.getElementById("liveTargetUrl");
+const liveModeValue = document.getElementById("liveModeValue");
+const liveHint = document.getElementById("liveHint");
+const liveStateLabel = document.getElementById("liveStateLabel");
+const recordingDot = document.getElementById("recordingDot");
 
 const startUrlInput = document.getElementById("startUrlInput");
 const targetSelect = document.getElementById("targetSelect");
@@ -59,11 +76,34 @@ let isListening = false;
 let refreshTimer = null;
 let lastCommandSource = "text";
 let selectedEventId = null;
+let lastRenderedEventId = null;
+let highlightedEventId = null;
+let selectedEventSnapshot = "";
 
 function titleCase(value) {
   return String(value || "")
     .replace(/_/g, " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function getActionVisual(action) {
+  const normalizedAction = String(action || "").toLowerCase();
+  if (normalizedAction === "click") {
+    return { icon: "C", label: "Click", className: "action-click" };
+  }
+  if (normalizedAction === "type" || normalizedAction === "select") {
+    return { icon: "T", label: titleCase(normalizedAction), className: `action-${normalizedAction}` };
+  }
+  if (normalizedAction === "validate") {
+    return { icon: "V", label: "Validate", className: "action-validate" };
+  }
+  if (normalizedAction === "navigate" || normalizedAction === "load") {
+    return { icon: "N", label: titleCase(normalizedAction), className: `action-${normalizedAction}` };
+  }
+  if (normalizedAction === "submit") {
+    return { icon: "S", label: "Submit", className: "action-submit" };
+  }
+  return { icon: "•", label: titleCase(normalizedAction || "step"), className: "" };
 }
 
 function setMessage(text, tone = "") {
@@ -76,6 +116,32 @@ function setMessage(text, tone = "") {
 
 function setCommandHint(text) {
   commandHint.textContent = text;
+}
+
+function pushCommandBubble(role, text, tone = "") {
+  if (!commandConsole || !text) {
+    return;
+  }
+  const bubble = document.createElement("div");
+  bubble.className = `command-bubble ${role}`;
+  if (tone) {
+    bubble.classList.add(tone);
+  }
+  bubble.textContent = text;
+  commandConsole.appendChild(bubble);
+
+  while (commandConsole.children.length > 8) {
+    commandConsole.removeChild(commandConsole.firstElementChild);
+  }
+
+  commandConsole.scrollTop = commandConsole.scrollHeight;
+}
+
+function scrollToTarget(targetId) {
+  const target = document.getElementById(targetId);
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 async function apiRequest(path, options = {}) {
@@ -110,7 +176,25 @@ function updateStatusPill(status) {
     statusPill.textContent = "Error";
     return;
   }
+  if (status === "paused") {
+    statusPill.textContent = "Paused";
+    return;
+  }
   statusPill.textContent = "Idle";
+}
+
+function updateLiveIndicator(status) {
+  recordingDot.className = "live-dot";
+  liveStateLabel.textContent = titleCase(status);
+  if (status === "recording") {
+    recordingDot.classList.add("recording");
+    return;
+  }
+  if (status === "error") {
+    recordingDot.classList.add("error");
+    return;
+  }
+  recordingDot.classList.add("ready");
 }
 
 function syncTableRowStrategyUI() {
@@ -223,6 +307,40 @@ function getEventMeta(event) {
   return event.target?.text || event.target?.selector || event.url;
 }
 
+function getEventTargetLabel(event) {
+  return (
+    event.target?.description ||
+    event.target?.text ||
+    event.target?.selector ||
+    event.target?.xpath ||
+    event.url ||
+    "No target"
+  );
+}
+
+function formatRecordedAt(value) {
+  if (!value) {
+    return "No time";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+}
+
+function updateEditorMeta() {
+  const lineCount = eventEditor.value ? eventEditor.value.split(/\r?\n/).length : 0;
+  editorLineCount.textContent = `${lineCount} line${lineCount === 1 ? "" : "s"}`;
+  const isDirty = Boolean(selectedEventId) && eventEditor.value !== selectedEventSnapshot;
+  editorDirtyState.textContent = isDirty ? "Unsaved changes" : "Clean";
+  editorDirtyState.className = `editor-dirty-state ${isDirty ? "dirty" : "clean"}`;
+}
+
 function buildTimelineSearchText(event) {
   return [
     event.type,
@@ -290,14 +408,28 @@ function syncEditorWithSelectedEvent(events) {
   if (!selectedEvent) {
     selectedEventId = null;
     eventEditor.value = "";
+    selectedEventSnapshot = "";
+    selectedStepTitle.textContent = "No step selected";
+    selectedStepAction.textContent = "Idle";
+    selectedStepMeta.textContent = "Choose a step from the timeline to inspect its target, action, and JSON payload.";
     saveEventBtn.disabled = true;
     resetEditorBtn.disabled = true;
+    copyEventBtn.disabled = true;
+    formatEventBtn.disabled = true;
+    updateEditorMeta();
     return;
   }
 
-  eventEditor.value = JSON.stringify(selectedEvent, null, 2);
+  selectedEventSnapshot = JSON.stringify(selectedEvent, null, 2);
+  eventEditor.value = selectedEventSnapshot;
+  selectedStepTitle.textContent = getEventTitle(selectedEvent);
+  selectedStepAction.textContent = titleCase(selectedEvent.action || selectedEvent.type);
+  selectedStepMeta.textContent = `${getEventTargetLabel(selectedEvent)} • ${formatRecordedAt(selectedEvent.recordedAt)}`;
   saveEventBtn.disabled = false;
   resetEditorBtn.disabled = false;
+  copyEventBtn.disabled = false;
+  formatEventBtn.disabled = false;
+  updateEditorMeta();
 }
 
 function renderTimeline(events) {
@@ -317,19 +449,30 @@ function renderTimeline(events) {
 
   const recentEvents = [...filteredEvents].reverse();
   for (const event of recentEvents) {
+    const visual = getActionVisual(event.action || event.type);
     const item = document.createElement("article");
-    item.className = "timeline-item";
+    item.className = `timeline-item ${visual.className}`.trim();
     if (event.id === selectedEventId) {
       item.classList.add("selected");
+    }
+    if (event.id === highlightedEventId) {
+      item.classList.add("new-step");
     }
     item.dataset.eventId = event.id;
 
     const head = document.createElement("div");
     head.className = "timeline-item-head";
 
+    const badge = document.createElement("div");
+    badge.className = "timeline-badge";
+
+    const icon = document.createElement("span");
+    icon.className = "timeline-icon";
+    icon.textContent = visual.icon;
+
     const type = document.createElement("span");
     type.className = "timeline-item-type";
-    type.textContent = event.action || event.type;
+    type.textContent = visual.label;
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
@@ -337,7 +480,8 @@ function renderTimeline(events) {
     removeBtn.textContent = "Delete";
     removeBtn.dataset.eventId = event.id;
 
-    head.append(type, removeBtn);
+    badge.append(icon, type);
+    head.append(badge, removeBtn);
 
     const title = document.createElement("div");
     title.className = "timeline-title";
@@ -347,9 +491,107 @@ function renderTimeline(events) {
     meta.className = "timeline-meta";
     meta.textContent = getEventMeta(event);
 
-    item.append(head, title, meta);
+    const submeta = document.createElement("div");
+    submeta.className = "timeline-submeta";
+
+    const targetChip = document.createElement("span");
+    targetChip.className = "timeline-chip";
+    targetChip.textContent = getEventTargetLabel(event);
+
+    const timeChip = document.createElement("span");
+    timeChip.className = "timeline-chip";
+    timeChip.textContent = formatRecordedAt(event.recordedAt);
+
+    submeta.append(targetChip, timeChip);
+
+    item.append(head, title, meta, submeta);
     timelineList.appendChild(item);
   }
+
+  if (highlightedEventId && filteredEvents.some((event) => event.id === highlightedEventId)) {
+    const newestItem = timelineList.querySelector(`.timeline-item[data-event-id="${highlightedEventId}"]`);
+    if (newestItem) {
+      newestItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
+}
+
+function updateWorkflow(state, selectedTarget, pageEvents) {
+  const browserReady = Boolean(state?.browser?.connected) && Boolean((state?.targets || []).length);
+  const sessionNamed = Boolean((state?.session?.recordingName || "").trim() || recordingNameInput.value.trim());
+  const isRecording = Boolean(state?.session?.isRecording);
+  const hasValidation = pageEvents.some((event) => event.type === "validation");
+  const hasCommand = pageEvents.some((event) => event.details?.naturalLanguage);
+  const hasEvents = pageEvents.length > 0;
+
+  const stepState = {
+    browser: browserReady,
+    record: browserReady && sessionNamed,
+    validate: isRecording || hasValidation,
+    command: hasCommand || nlCommandInput.value.trim().length > 0,
+    export: hasEvents
+  };
+
+  let activeStep = "browser";
+  if (browserReady) {
+    activeStep = "record";
+  }
+  if (isRecording) {
+    activeStep = "validate";
+  }
+  if (nlCommandInput.value.trim()) {
+    activeStep = "command";
+  }
+  if (!isRecording && hasEvents) {
+    activeStep = "export";
+  }
+
+  for (const step of workflowSteps) {
+    const stepName = step.dataset.step;
+    step.classList.toggle("done", Boolean(stepState[stepName]));
+    step.classList.toggle("active", stepName === activeStep);
+  }
+
+  const currentSectionId =
+    activeStep === "browser"
+      ? "livePanel"
+      : activeStep === "record"
+        ? "sessionSection"
+        : activeStep === "validate"
+          ? "validateSection"
+          : activeStep === "command"
+            ? "commandSection"
+            : "exportSection";
+
+  for (const link of railLinks) {
+    link.classList.toggle("active", link.dataset.scrollTarget === currentSectionId || (currentSectionId === "livePanel" && link.dataset.scrollTarget === "livePanel"));
+  }
+
+  liveTargetTitle.textContent = selectedTarget ? selectedTarget.title : "No page selected";
+  liveTargetUrl.textContent = selectedTarget ? selectedTarget.url : "Launch or connect Chrome to begin.";
+
+  if (!browserReady) {
+    liveModeValue.textContent = "Waiting for browser";
+    liveHint.textContent = "Launch a clean Chrome session or connect to an existing one.";
+    return;
+  }
+
+  if (!isRecording && !hasEvents) {
+    liveModeValue.textContent = "Ready to record";
+    liveHint.textContent = sessionNamed
+      ? "Start recording on the selected page."
+      : "Give the session a name, then start recording.";
+    return;
+  }
+
+  if (isRecording) {
+    liveModeValue.textContent = "Recording live";
+    liveHint.textContent = "User actions on the selected page are now streaming into the step timeline.";
+    return;
+  }
+
+  liveModeValue.textContent = "Review and export";
+  liveHint.textContent = "Inspect the recorded steps, edit anything incorrect, then export JSON.";
 }
 
 function updateNaturalLanguageSummary() {
@@ -371,8 +613,7 @@ function updateNaturalLanguageSummary() {
   }
 
   if (parsed.kind === "enter") {
-    const valueLabel = parsed.isSensitive ? "a masked value" : `"${parsed.inputValue}"`;
-    setCommandHint(`Recognized as entering ${valueLabel} into "${parsed.targetDescription}"${locatorSuffix}.`);
+    setCommandHint(`Recognized as entering "${parsed.inputValue}" into "${parsed.targetDescription}"${locatorSuffix}.`);
     return;
   }
 
@@ -399,6 +640,8 @@ function applyState(state) {
   const events = pageEvents.length;
   const selectedTarget = getSelectedTarget(state);
   const hasRecordingName = Boolean(recordingNameInput.value.trim());
+  const nextEventId = pageEvents.length ? pageEvents[pageEvents.length - 1].id : null;
+  highlightedEventId = nextEventId && nextEventId !== lastRenderedEventId ? nextEventId : null;
 
   statusText.textContent = isRecording ? "Recording" : browserConnected ? "Ready" : "Disconnected";
   eventCountValue.textContent = String(events);
@@ -407,13 +650,17 @@ function applyState(state) {
   if (!recordingNameInput.value && !isRecording && !events) {
     recordingNameInput.value = state?.session?.recordingName || "";
   }
-  updateStatusPill(browserConnected ? (isRecording ? "recording" : "idle") : "error");
+  const status = browserConnected ? (isRecording ? "recording" : "idle") : "error";
+  updateStatusPill(status);
+  updateLiveIndicator(status);
 
   populateTargetSelect(state.targets || [], state.selectedTargetId);
   targetSelect.disabled = isRecording || !(state.targets || []).length;
   renderSummary(pageEvents);
   renderTimeline(pageEvents);
   syncEditorWithSelectedEvent(pageEvents);
+  updateWorkflow(state, selectedTarget, pageEvents);
+  lastRenderedEventId = nextEventId;
 
   startSessionBtn.disabled = !browserConnected || isRecording || !(state.targets || []).length || !hasRecordingName;
   launchChromeBtn.disabled = isRecording;
@@ -498,6 +745,7 @@ async function startSession() {
       method: "POST",
       body: { recordingName }
     });
+    pushCommandBubble("system", `Session "${recordingName}" started.`, "success");
     setMessage("Recording started for the selected Chrome page set.", "success");
     await refreshState();
   } catch (error) {
@@ -508,6 +756,7 @@ async function startSession() {
 async function stopSession() {
   try {
     await apiRequest("/api/session/stop", { method: "POST" });
+    pushCommandBubble("system", "Recording stopped. Review the captured steps and export when ready.");
     setMessage("Recording stopped. Review steps, then export.", "success");
     await refreshState();
   } catch (error) {
@@ -518,6 +767,7 @@ async function stopSession() {
 async function clearSession() {
   try {
     await apiRequest("/api/session/clear", { method: "POST" });
+    pushCommandBubble("system", "Session steps cleared.");
     setMessage("Session events cleared.", "success");
     await refreshState();
   } catch (error) {
@@ -563,6 +813,8 @@ async function saveSelectedEvent() {
         event: parsedEvent
       }
     });
+    selectedEventSnapshot = JSON.stringify(parsedEvent, null, 2);
+    updateEditorMeta();
     setMessage("Step updated in the session.", "success");
     await refreshState();
   } catch (error) {
@@ -572,6 +824,31 @@ async function saveSelectedEvent() {
 
 function resetEditor() {
   syncEditorWithSelectedEvent(getSelectedPageEvents(currentState?.session?.events || []));
+}
+
+function formatEditorJson() {
+  if (!selectedEventId) {
+    return;
+  }
+  try {
+    const parsed = JSON.parse(eventEditor.value);
+    eventEditor.value = JSON.stringify(parsed, null, 2);
+    updateEditorMeta();
+  } catch (error) {
+    setMessage("Step JSON is invalid. Fix it before formatting.", "error");
+  }
+}
+
+async function copyEditorJson() {
+  if (!selectedEventId || !eventEditor.value) {
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(eventEditor.value);
+    setMessage("Step JSON copied to clipboard.", "success");
+  } catch (error) {
+    setMessage("Unable to copy JSON to clipboard.", "error");
+  }
 }
 
 function selectTimelineEvent(eventId) {
@@ -617,6 +894,8 @@ async function pickValidationTarget() {
 async function addCommandEvent() {
   const parsed = parseNaturalLanguageCommand(nlCommandInput.value);
   if (!parsed) {
+    pushCommandBubble("user", nlCommandInput.value || "Unsupported command");
+    pushCommandBubble("system", "Unsupported command. Use navigate, click, enter, visible/present validation, title, or URL commands.", "error");
     setMessage("Unsupported command. Use navigate, click, enter, visible/present validation, title, or URL commands.", "error");
     return;
   }
@@ -628,6 +907,7 @@ async function addCommandEvent() {
   }
 
   try {
+    pushCommandBubble("user", nlCommandInput.value);
     const event = buildNaturalLanguageEvent(
       parsed,
       {
@@ -646,6 +926,7 @@ async function addCommandEvent() {
     nlCommandInput.value = "";
     lastCommandSource = "text";
     updateNaturalLanguageSummary();
+    pushCommandBubble("system", `Added ${titleCase(event.action || event.type)} step to the session.`, "success");
     setMessage("Command event added to the session.", "success");
     await refreshState();
   } catch (error) {
@@ -670,6 +951,7 @@ function initializeSpeechRecognition() {
   speechRecognition.onstart = () => {
     isListening = true;
     updateListeningUi();
+    pushCommandBubble("system", "Listening for a command.");
     setMessage("Listening for a command.", "success");
   };
 
@@ -681,6 +963,7 @@ function initializeSpeechRecognition() {
   speechRecognition.onerror = (event) => {
     isListening = false;
     updateListeningUi();
+    pushCommandBubble("system", `Voice recognition failed: ${event.error}`, "error");
     setMessage(`Voice recognition failed: ${event.error}`, "error");
   };
 
@@ -697,6 +980,7 @@ function initializeSpeechRecognition() {
     nlCommandInput.value = transcript;
     lastCommandSource = "voice";
     updateNaturalLanguageSummary();
+    pushCommandBubble("user", transcript);
     setMessage("Voice command captured. Review it and add the command event.", "success");
   };
 }
@@ -752,6 +1036,15 @@ pickValidationBtn.addEventListener("click", pickValidationTarget);
 addCommandBtn.addEventListener("click", addCommandEvent);
 listenBtn.addEventListener("click", toggleListening);
 exportBtn.addEventListener("click", exportJson);
+workflowSteps.forEach((step) => {
+  step.addEventListener("click", () => scrollToTarget(step.dataset.scrollTarget));
+});
+railLinks.forEach((link) => {
+  link.addEventListener("click", () => scrollToTarget(link.dataset.scrollTarget));
+});
+statButtons.forEach((button) => {
+  button.addEventListener("click", () => scrollToTarget(button.dataset.scrollTarget));
+});
 
 timelineList.addEventListener("click", (event) => {
   const deleteButton = event.target.closest(".timeline-delete[data-event-id]");
@@ -814,6 +1107,51 @@ timelineFilterSelect.addEventListener("change", () => {
 
 saveEventBtn.addEventListener("click", saveSelectedEvent);
 resetEditorBtn.addEventListener("click", resetEditor);
+copyEventBtn.addEventListener("click", () => {
+  void copyEditorJson();
+});
+formatEventBtn.addEventListener("click", formatEditorJson);
+eventEditor.addEventListener("input", updateEditorMeta);
+
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && String(event.key || "").toLowerCase() === "s") {
+    if (!saveEventBtn.disabled && document.activeElement === eventEditor) {
+      event.preventDefault();
+      void saveSelectedEvent();
+      return;
+    }
+  }
+
+  if (!event.ctrlKey) {
+    return;
+  }
+
+  const key = String(event.key || "").toLowerCase();
+  if (key === "k") {
+    event.preventDefault();
+    nlCommandInput.focus();
+    nlCommandInput.select();
+    scrollToTarget("commandSection");
+    return;
+  }
+
+  if (key === "e") {
+    event.preventDefault();
+    if (!exportBtn.disabled) {
+      void exportJson();
+    }
+    return;
+  }
+
+  if (key === "r") {
+    event.preventDefault();
+    if (currentState?.session?.isRecording) {
+      void stopSession();
+    } else if (!startSessionBtn.disabled) {
+      void startSession();
+    }
+  }
+});
 
 setValidationMode("single");
 initializeSpeechRecognition();
