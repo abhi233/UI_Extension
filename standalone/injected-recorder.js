@@ -287,6 +287,27 @@
     return nextKey;
   }
 
+  function getEventSourceElement(event) {
+    if (event && typeof event.composedPath === "function") {
+      const eventPath = event.composedPath();
+      for (const pathItem of eventPath) {
+        if (pathItem && pathItem.nodeType === Node.ELEMENT_NODE) {
+          return pathItem;
+        }
+      }
+    }
+
+    return event?.target && event.target.nodeType === Node.ELEMENT_NODE ? event.target : null;
+  }
+
+  function getDeepActiveElement(root) {
+    let activeElement = root?.activeElement || null;
+    while (activeElement?.shadowRoot?.activeElement) {
+      activeElement = activeElement.shadowRoot.activeElement;
+    }
+    return activeElement;
+  }
+
   function isRecordableFormElement(element) {
     return Boolean(element && ["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName));
   }
@@ -361,6 +382,17 @@
       dirtyFieldElements.delete(elementKey);
       commitFieldEvent(element);
     }
+  }
+
+  function flushActiveFieldEvent() {
+    const activeElement = getDeepActiveElement(document);
+    if (!isRecordableFormElement(activeElement)) {
+      return;
+    }
+    if (!dirtyFieldElements.has(getElementKey(activeElement))) {
+      return;
+    }
+    commitFieldEvent(activeElement);
   }
 
   function recordEvent(type, action, element, details) {
@@ -608,7 +640,7 @@
   }
 
   function onPickerMove(event) {
-    const target = event.target;
+    const target = getEventSourceElement(event);
     if (!target || target === document.documentElement || target === document.body) {
       return;
     }
@@ -620,7 +652,10 @@
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    const selectedElement = event.target;
+    const selectedElement = getEventSourceElement(event);
+    if (!selectedElement) {
+      return;
+    }
     const { validation, targetElement } = buildValidation(pickerConfig, selectedElement);
     if (validation.mode === "table_bulk" && !validation.tableFound) {
       showNotice("Select a table or any cell inside a table.");
@@ -678,8 +713,9 @@
     if (isPickerActive) {
       return;
     }
+    flushActiveFieldEvent();
     flushDirtyFieldEvents();
-    const element = event.target;
+    const element = getEventSourceElement(event);
     const anchor = element?.closest?.("a[href]");
     recordEvent("click", "click", element, {
       button: event.button,
@@ -693,7 +729,7 @@
     if (isPickerActive) {
       return;
     }
-    const element = event.target;
+    const element = getEventSourceElement(event);
     if (!isRecordableFormElement(element)) {
       return;
     }
@@ -707,7 +743,7 @@
     if (isPickerActive) {
       return;
     }
-    const element = event.target;
+    const element = getEventSourceElement(event);
     if (!isRecordableFormElement(element)) {
       return;
     }
@@ -721,7 +757,7 @@
     if (isPickerActive) {
       return;
     }
-    const element = event.target;
+    const element = getEventSourceElement(event);
     if (!isRecordableFormElement(element)) {
       return;
     }
@@ -732,8 +768,9 @@
     if (isPickerActive) {
       return;
     }
+    flushActiveFieldEvent();
     flushDirtyFieldEvents();
-    recordEvent("submit", "submit", event.target, {});
+    recordEvent("submit", "submit", getEventSourceElement(event), {});
   }
 
   document.addEventListener("click", handleClick, true);
@@ -746,6 +783,7 @@
 
   window.__uiRecorderSetState = function (nextState) {
     if (state.isRecording && !Boolean(nextState?.isRecording)) {
+      flushActiveFieldEvent();
       flushDirtyFieldEvents();
     }
     state = {
