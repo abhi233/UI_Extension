@@ -18,9 +18,12 @@ Then open:
 http://127.0.0.1:4791
 ```
 
+Each new Chrome launch uses a fresh browser profile and opens only the URL you provide.
+
 The standalone app keeps the same JSON schema and supports:
 
 - action recording through Chrome DevTools Protocol
+- page-scoped sessions and export for the selected recorded page
 - element picker validations
 - table bulk validations
 - text command validations
@@ -29,6 +32,7 @@ The standalone app keeps the same JSON schema and supports:
 - recorded-step review with delete before export
 - step search, action filters, and a session summary
 - inline JSON step editing before export
+- target list limited to 10 visible pages in the recorder UI
 
 ## What It Captures
 

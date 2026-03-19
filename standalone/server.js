@@ -11,13 +11,14 @@ const SCHEMA_VERSION = "1.0.0";
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const STANDALONE_DIR = __dirname;
-const PROFILE_DIR = path.join(STANDALONE_DIR, ".chrome-profile");
+const PROFILE_ROOT_DIR = path.join(STANDALONE_DIR, ".chrome-profile");
 const injectedSource = fs.readFileSync(path.join(STANDALONE_DIR, "injected-recorder.js"), "utf8");
 
 const recorderState = {
   isRecording: false,
   sessionId: null,
   recordingName: "",
+  recordingTargetId: null,
   startedAt: null,
   endedAt: null,
   events: [],
@@ -29,7 +30,8 @@ const browserState = {
   debugPort: CHROME_DEBUG_PORT,
   chromePath: null,
   launchError: null,
-  process: null
+  process: null,
+  profileDir: null
 };
 
 const trackedTargets = new Map();
@@ -57,6 +59,7 @@ function normalizeEvent(rawEvent) {
     id: generateEventId(),
     recordedAt: nowIso(),
     sessionId: recorderState.sessionId,
+    pageTargetId: rawEvent.pageTargetId || null,
     url: rawEvent.url || "",
     title: rawEvent.title || "",
     type: rawEvent.type || "unknown",
@@ -71,21 +74,34 @@ function logEvent(rawEvent) {
   if (!recorderState.isRecording) {
     return { ok: false, error: "Recording is not active." };
   }
+  if (recorderState.recordingTargetId && rawEvent?.pageTargetId && rawEvent.pageTargetId !== recorderState.recordingTargetId) {
+    return { ok: false, ignored: true };
+  }
   recorderState.events.push(normalizeEvent(rawEvent || {}));
   touchState();
   return { ok: true, count: recorderState.events.length };
 }
 
-function buildExportData() {
+function getEventsForSelectedTarget(targetId) {
+  const effectiveTargetId = targetId || recorderState.recordingTargetId || null;
+  if (!effectiveTargetId) {
+    return recorderState.events;
+  }
+  return recorderState.events.filter((event) => !event.pageTargetId || event.pageTargetId === effectiveTargetId);
+}
+
+function buildExportData(targetId) {
+  const events = getEventsForSelectedTarget(targetId);
   return {
     schemaVersion: SCHEMA_VERSION,
     sessionId: recorderState.sessionId,
     recordingName: recorderState.recordingName,
+    recordingTargetId: recorderState.recordingTargetId,
     startedAt: recorderState.startedAt,
     endedAt: recorderState.endedAt,
     exportedAt: nowIso(),
-    eventCount: recorderState.events.length,
-    events: recorderState.events
+    eventCount: events.length,
+    events
   };
 }
 
@@ -262,7 +278,10 @@ class CDPTargetSession {
     if (bindingMessage?.eventType === "recorder-event") {
       this.url = bindingMessage.payload?.url || this.url;
       this.title = bindingMessage.payload?.title || this.title;
-      logEvent(bindingMessage.payload);
+      logEvent({
+        ...bindingMessage.payload,
+        pageTargetId: this.id
+      });
     }
   }
 
@@ -278,6 +297,7 @@ class CDPTargetSession {
     logEvent({
       type: "navigation",
       action: "navigate",
+      pageTargetId: this.id,
       url: nextUrl,
       title: this.title || "",
       details: {
@@ -301,7 +321,7 @@ async function applyRecorderStateToTarget(target) {
   try {
     await target.evaluateFunction("__uiRecorderSetState", [
       {
-        isRecording: recorderState.isRecording,
+        isRecording: recorderState.isRecording && (!recorderState.recordingTargetId || recorderState.recordingTargetId === target.id),
         sessionId: recorderState.sessionId
       }
     ]);
@@ -315,9 +335,27 @@ async function applyRecorderStateToAllTargets() {
 }
 
 function getTargetSummaries() {
-  return Array.from(trackedTargets.values())
-    .sort((left, right) => right.attachedAt - left.attachedAt)
-    .map((target) => ({
+  const sortedTargets = Array.from(trackedTargets.values()).sort((left, right) => right.attachedAt - left.attachedAt);
+  const limitedTargets = [];
+
+  if (selectedTargetId) {
+    const selectedTarget = trackedTargets.get(selectedTargetId);
+    if (selectedTarget) {
+      limitedTargets.push(selectedTarget);
+    }
+  }
+
+  for (const target of sortedTargets) {
+    if (limitedTargets.some((candidate) => candidate.id === target.id)) {
+      continue;
+    }
+    limitedTargets.push(target);
+    if (limitedTargets.length >= 10) {
+      break;
+    }
+  }
+
+  return limitedTargets.map((target) => ({
       id: target.id,
       title: target.title || "(untitled page)",
       url: target.url || "",
@@ -382,29 +420,53 @@ function ensureDiscoverLoop() {
   }, 2000);
 }
 
+function resetTrackedTargets() {
+  for (const target of trackedTargets.values()) {
+    target.close();
+  }
+  trackedTargets.clear();
+  selectedTargetId = null;
+}
+
+async function stopManagedChrome() {
+  if (!browserState.process || browserState.process.killed) {
+    return;
+  }
+
+  browserState.process.kill();
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+  browserState.process = null;
+}
+
 async function launchChrome(startUrl) {
   const chromePath = findChromeExecutable();
   if (!chromePath) {
     throw new Error("Chrome executable was not found. Set UI_RECORDER_CHROME_PATH or update the common paths.");
   }
 
-  fs.mkdirSync(PROFILE_DIR, { recursive: true });
+  await stopManagedChrome();
+  resetTrackedTargets();
+
+  const profileDir = path.join(PROFILE_ROOT_DIR, `profile-${Date.now()}`);
+  fs.mkdirSync(profileDir, { recursive: true });
 
   browserState.chromePath = chromePath;
+  browserState.profileDir = profileDir;
   browserState.launchError = null;
 
   const args = [
     `--remote-debugging-port=${browserState.debugPort}`,
-    `--user-data-dir=${PROFILE_DIR}`,
+    `--user-data-dir=${profileDir}`,
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-session-crashed-bubble",
     "--new-window",
     startUrl || "about:blank"
   ];
 
   browserState.process = spawn(chromePath, args, {
-    detached: true,
     stdio: "ignore"
   });
-  browserState.process.unref();
 
   ensureDiscoverLoop();
 
@@ -424,9 +486,13 @@ async function launchChrome(startUrl) {
 }
 
 async function startSession(recordingName) {
+  if (!selectedTargetId || !trackedTargets.has(selectedTargetId)) {
+    throw new Error("Select a browser page before starting the session.");
+  }
   recorderState.isRecording = true;
   recorderState.sessionId = generateSessionId();
   recorderState.recordingName = String(recordingName || "").trim() || "UI Recording";
+  recorderState.recordingTargetId = selectedTargetId;
   recorderState.startedAt = nowIso();
   recorderState.endedAt = null;
   recorderState.events = [];
@@ -445,6 +511,7 @@ async function stopSession() {
 
 function clearSession() {
   recorderState.events = [];
+  recorderState.recordingTargetId = null;
   touchState();
   return recorderState;
 }
@@ -495,7 +562,8 @@ function getStateResponse() {
       connected: browserState.connected,
       debugPort: browserState.debugPort,
       chromePath: browserState.chromePath,
-      launchError: browserState.launchError
+      launchError: browserState.launchError,
+      profileDir: browserState.profileDir
     },
     session: recorderState,
     targets: getTargetSummaries(),
@@ -633,7 +701,10 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && requestUrl.pathname === "/api/log-event") {
       const body = await readRequestBody(request);
-      const result = logEvent(body.event);
+      const result = logEvent({
+        ...(body.event || {}),
+        pageTargetId: body.event?.pageTargetId || selectedTargetId || recorderState.recordingTargetId
+      });
       sendJson(response, result.ok ? 200 : 400, result);
       return;
     }
@@ -653,7 +724,8 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "GET" && requestUrl.pathname === "/api/export") {
-      const payload = JSON.stringify(buildExportData(), null, 2);
+      const targetId = requestUrl.searchParams.get("targetId") || selectedTargetId || recorderState.recordingTargetId;
+      const payload = JSON.stringify(buildExportData(targetId), null, 2);
       sendText(response, 200, "application/json", payload);
       return;
     }

@@ -158,6 +158,14 @@ function getSelectedTarget(state) {
   return state?.targets?.find((target) => target.id === state.selectedTargetId) || null;
 }
 
+function getSelectedPageEvents(events, state = currentState) {
+  const targetId = state?.selectedTargetId || state?.session?.recordingTargetId || null;
+  if (!targetId) {
+    return events;
+  }
+  return events.filter((event) => !event.pageTargetId || event.pageTargetId === targetId);
+}
+
 function populateTargetSelect(targets, selectedTargetId) {
   const previousValue = targetSelect.value;
   targetSelect.innerHTML = "";
@@ -367,7 +375,8 @@ function applyState(state) {
   currentState = state;
   const isRecording = Boolean(state?.session?.isRecording);
   const browserConnected = Boolean(state?.browser?.connected);
-  const events = state?.session?.events?.length || 0;
+  const pageEvents = getSelectedPageEvents(state?.session?.events || [], state);
+  const events = pageEvents.length;
   const selectedTarget = getSelectedTarget(state);
   const hasRecordingName = Boolean(recordingNameInput.value.trim());
 
@@ -381,13 +390,16 @@ function applyState(state) {
   updateStatusPill(browserConnected ? (isRecording ? "recording" : "idle") : "error");
 
   populateTargetSelect(state.targets || [], state.selectedTargetId);
-  renderSummary(state.session?.events || []);
-  renderTimeline(state.session?.events || []);
-  syncEditorWithSelectedEvent(state.session?.events || []);
+  targetSelect.disabled = isRecording || !(state.targets || []).length;
+  renderSummary(pageEvents);
+  renderTimeline(pageEvents);
+  syncEditorWithSelectedEvent(pageEvents);
 
   startSessionBtn.disabled = !browserConnected || isRecording || !(state.targets || []).length || !hasRecordingName;
+  launchChromeBtn.disabled = isRecording;
+  connectChromeBtn.disabled = isRecording;
   stopSessionBtn.disabled = !isRecording;
-  clearSessionBtn.disabled = events === 0;
+  clearSessionBtn.disabled = (state?.session?.events?.length || 0) === 0;
   pickValidationBtn.disabled = !isRecording || !selectedTarget;
   addCommandBtn.disabled = !isRecording || !selectedTarget;
   exportBtn.disabled = events === 0;
@@ -539,13 +551,14 @@ async function saveSelectedEvent() {
 }
 
 function resetEditor() {
-  syncEditorWithSelectedEvent(currentState?.session?.events || []);
+  syncEditorWithSelectedEvent(getSelectedPageEvents(currentState?.session?.events || []));
 }
 
 function selectTimelineEvent(eventId) {
   selectedEventId = eventId;
-  renderTimeline(currentState?.session?.events || []);
-  syncEditorWithSelectedEvent(currentState?.session?.events || []);
+  const pageEvents = getSelectedPageEvents(currentState?.session?.events || []);
+  renderTimeline(pageEvents);
+  syncEditorWithSelectedEvent(pageEvents);
 }
 
 function buildValidationPayload() {
@@ -688,7 +701,8 @@ function toggleListening() {
 
 async function exportJson() {
   try {
-    const response = await fetch("/api/export");
+    const targetId = currentState?.selectedTargetId ? `?targetId=${encodeURIComponent(currentState.selectedTargetId)}` : "";
+    const response = await fetch(`/api/export${targetId}`);
     if (!response.ok) {
       throw new Error("Unable to export JSON.");
     }
@@ -771,11 +785,11 @@ recordingNameInput.addEventListener("input", () => {
 });
 
 timelineSearchInput.addEventListener("input", () => {
-  renderTimeline(currentState?.session?.events || []);
+  renderTimeline(getSelectedPageEvents(currentState?.session?.events || []));
 });
 
 timelineFilterSelect.addEventListener("change", () => {
-  renderTimeline(currentState?.session?.events || []);
+  renderTimeline(getSelectedPageEvents(currentState?.session?.events || []));
 });
 
 saveEventBtn.addEventListener("click", saveSelectedEvent);
