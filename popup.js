@@ -34,12 +34,9 @@ const rowEnd = document.getElementById("rowEnd");
 const tableColumns = document.getElementById("tableColumns");
 const tableKeyColumn = document.getElementById("tableKeyColumn");
 
-const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const { parseNaturalLanguageCommand, buildNaturalLanguageEvent } = window.UIRecorderCommandUtils;
 
 let currentValidationMode = "single";
-let speechRecognition = null;
-let isListening = false;
-let lastCommandSource = "text";
 
 function titleCase(value) {
   return String(value || "")
@@ -157,149 +154,10 @@ function setValidationMode(mode) {
   updateValidationSummary();
 }
 
-function normalizeCommandText(value) {
-  return String(value || "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .replace(/[.?!]+$/g, "");
-}
-
-function stripWrappingQuotes(value) {
-  const text = String(value || "").trim();
-  if (
-    (text.startsWith('"') && text.endsWith('"')) ||
-    (text.startsWith("'") && text.endsWith("'"))
-  ) {
-    return text.slice(1, -1).trim();
-  }
-  return text;
-}
-
-function parseNaturalLanguageCommand(rawCommand) {
-  const cleaned = normalizeCommandText(rawCommand);
-  if (!cleaned) {
-    return null;
-  }
-
-  const patterns = [
-    {
-      regex: /^(?:validate|verify|check) (?:the )?(?:page )?title(?: contains) (.+)$/i,
-      assertionType: "document_title",
-      comparison: "contains"
-    },
-    {
-      regex: /^(?:validate|verify|check) (?:the )?(?:page )?title(?: is| equals)? (.+)$/i,
-      assertionType: "document_title",
-      comparison: "equals"
-    },
-    {
-      regex: /^(?:validate|verify|check) (?:the )?(?:page )?title$/i,
-      assertionType: "document_title",
-      comparison: "equals"
-    },
-    {
-      regex: /^(?:validate|verify|check) (?:the )?(?:current )?url(?: contains) (.+)$/i,
-      assertionType: "document_url",
-      comparison: "contains"
-    },
-    {
-      regex: /^(?:validate|verify|check) (?:the )?(?:current )?url(?: is| equals)? (.+)$/i,
-      assertionType: "document_url",
-      comparison: "equals"
-    },
-    {
-      regex: /^(?:validate|verify|check) (?:the )?(?:current )?url$/i,
-      assertionType: "document_url",
-      comparison: "equals"
-    }
-  ];
-
-  for (const pattern of patterns) {
-    const match = cleaned.match(pattern.regex);
-    if (match) {
-      return {
-        rawCommand: cleaned,
-        normalizedCommand: cleaned.toLowerCase(),
-        assertionType: pattern.assertionType,
-        comparison: pattern.comparison,
-        explicitExpectedValue: stripWrappingQuotes(match[1] || "")
-      };
-    }
-  }
-
-  return null;
-}
-
-function getDocumentField(assertionType) {
-  return assertionType === "document_title" ? "title" : "url";
-}
-
-function getDocumentActualValue(tab, assertionType) {
-  return assertionType === "document_title" ? String(tab.title || "") : String(tab.url || "");
-}
-
-function buildDocumentTarget(tab, assertionType) {
-  const documentField = getDocumentField(assertionType);
-  const currentValue = getDocumentActualValue(tab, assertionType);
-
-  return {
-    targetType: "document",
-    documentField,
-    tagName: "document",
-    id: "",
-    dataTestId: "",
-    name: "",
-    selector: "",
-    xpath: "",
-    primaryLocator: {
-      type: "document",
-      value: documentField,
-      stability: "strong"
-    },
-    locatorCandidates: [
-      {
-        type: "document",
-        value: documentField,
-        stability: "strong"
-      }
-    ],
-    text: currentValue
-  };
-}
-
-function buildNaturalLanguageEvent(commandShape, tab, source) {
-  const actualValue = getDocumentActualValue(tab, commandShape.assertionType);
-  const expectedValue = commandShape.explicitExpectedValue || actualValue;
-
-  return {
-    type: "validation",
-    action: "validate",
-    command: commandInput.value.trim() || "add validation",
-    url: tab.url || "",
-    title: tab.title || "",
-    target: buildDocumentTarget(tab, commandShape.assertionType),
-    details: {
-      validation: {
-        mode: "single",
-        assertionType: commandShape.assertionType,
-        comparison: commandShape.comparison,
-        expectedValue,
-        actualValue,
-        source
-      },
-      naturalLanguage: {
-        rawCommand: commandShape.rawCommand,
-        normalizedCommand: commandShape.normalizedCommand,
-        source
-      }
-    }
-  };
-}
-
 function updateNaturalLanguageSummary() {
   const parsed = parseNaturalLanguageCommand(nlCommandInput.value);
   if (!parsed) {
-    setCommandHint("Supported now: validate title, validate title contains X, validate current url, validate current url contains X.");
+    setCommandHint("Supported now: validate title, validate title contains X, validate current url, validate current url contains X. Voice opens in a dedicated window.");
     return;
   }
 
@@ -322,16 +180,9 @@ function applyRecorderState(state) {
   stopBtn.disabled = !isRecording;
   pickValidationBtn.disabled = !isRecording;
   addCommandBtn.disabled = !isRecording;
+  listenBtn.disabled = !isRecording;
   exportBtn.disabled = events === 0;
   clearBtn.disabled = events === 0;
-
-  if (!isRecording && isListening && speechRecognition) {
-    speechRecognition.stop();
-  }
-
-  if (speechRecognition) {
-    listenBtn.disabled = !isRecording;
-  }
 }
 
 async function refreshState() {
@@ -421,7 +272,7 @@ async function addNaturalLanguageCommandEvent() {
     const activeTab = await getActiveTab();
     const response = await sendMessage(
       "LOG_EVENT",
-      buildNaturalLanguageEvent(commandShape, activeTab, lastCommandSource)
+      buildNaturalLanguageEvent(commandShape, activeTab, commandInput.value.trim(), "text")
     );
 
     if (!response?.ok) {
@@ -430,7 +281,6 @@ async function addNaturalLanguageCommandEvent() {
     }
 
     nlCommandInput.value = "";
-    lastCommandSource = "text";
     updateNaturalLanguageSummary();
     setMessage("Command event added to the session.", "success");
     await refreshState();
@@ -439,74 +289,40 @@ async function addNaturalLanguageCommandEvent() {
   }
 }
 
-function updateListeningUI() {
-  listenBtn.textContent = isListening ? "Stop Listening" : "Start Listening";
-}
-
-function initializeSpeechRecognition() {
-  if (!SpeechRecognitionCtor) {
-    listenBtn.disabled = true;
-    listenBtn.textContent = "Voice Unsupported";
-    setCommandHint("Voice input is not available in this Chrome context. Text commands still work.");
+async function openVoiceCapture() {
+  const response = await sendMessage("GET_STATE");
+  if (!response?.ok || !response.state?.isRecording) {
+    setMessage("Start recording before opening voice capture.", "error");
     return;
   }
 
-  speechRecognition = new SpeechRecognitionCtor();
-  speechRecognition.lang = "en-US";
-  speechRecognition.continuous = false;
-  speechRecognition.interimResults = false;
-  speechRecognition.maxAlternatives = 1;
-
-  speechRecognition.onstart = () => {
-    isListening = true;
-    updateListeningUI();
-    setMessage("Listening for a command.", "success");
-  };
-
-  speechRecognition.onend = () => {
-    isListening = false;
-    updateListeningUI();
-  };
-
-  speechRecognition.onerror = (event) => {
-    isListening = false;
-    updateListeningUI();
-    setMessage(`Voice recognition failed: ${event.error}`, "error");
-  };
-
-  speechRecognition.onresult = (event) => {
-    const transcript = Array.from(event.results)
-      .map((result) => result[0]?.transcript || "")
-      .join(" ")
-      .trim();
-
-    if (!transcript) {
-      return;
-    }
-
-    nlCommandInput.value = transcript;
-    lastCommandSource = "voice";
-    updateNaturalLanguageSummary();
-    setMessage("Voice command captured. Review it and add the command event.", "success");
-  };
-}
-
-function toggleListening() {
-  if (!speechRecognition) {
-    setMessage("Voice input is not available in this Chrome context.", "error");
-    return;
-  }
-
-  if (isListening) {
-    speechRecognition.stop();
-    return;
-  }
-
+  let activeTab;
   try {
-    speechRecognition.start();
+    activeTab = await getActiveTab();
   } catch (error) {
     setMessage(String(error.message || error), "error");
+    return;
   }
+
+  const commandLabel = encodeURIComponent(commandInput.value.trim() || "add validation");
+  const url = chrome.runtime.getURL(
+    `voice.html?commandLabel=${commandLabel}&tabId=${encodeURIComponent(String(activeTab.id))}`
+  );
+  chrome.windows.create(
+    {
+      url,
+      type: "popup",
+      width: 460,
+      height: 640
+    },
+    () => {
+      if (chrome.runtime.lastError) {
+        setMessage(chrome.runtime.lastError.message, "error");
+        return;
+      }
+      setMessage("Voice capture opened in a dedicated window.", "success");
+    }
+  );
 }
 
 async function exportJson() {
@@ -540,7 +356,7 @@ stopBtn.addEventListener("click", stopRecording);
 clearBtn.addEventListener("click", clearEvents);
 pickValidationBtn.addEventListener("click", pickValidationTarget);
 addCommandBtn.addEventListener("click", addNaturalLanguageCommandEvent);
-listenBtn.addEventListener("click", toggleListening);
+listenBtn.addEventListener("click", openVoiceCapture);
 exportBtn.addEventListener("click", exportJson);
 
 modeSingleBtn.addEventListener("click", () => setValidationMode("single"));
@@ -569,14 +385,9 @@ validationType.addEventListener("change", () => {
   element.addEventListener("input", updateValidationSummary);
 });
 
-nlCommandInput.addEventListener("input", () => {
-  lastCommandSource = "text";
-  updateNaturalLanguageSummary();
-});
+nlCommandInput.addEventListener("input", updateNaturalLanguageSummary);
 
 setValidationMode("single");
-initializeSpeechRecognition();
-updateListeningUI();
 updateNaturalLanguageSummary();
 setMessage("Start recording, capture actions, add validations, then export the session.", "");
 refreshState();

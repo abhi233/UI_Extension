@@ -1,0 +1,708 @@
+WEBVTT
+
+00:00.000 --> 00:13.800
+Hello friends, today we will learn how to
+locate the web elements on a web page using
+
+00:13.800 --> 00:27.080
+Selenium WebDriver. So, Selenium has different locators
+like you can see here, 8 locators are listed here
+
+00:27.080 --> 00:34.080
+You can use any of these locators to
+find a web element using Selenium
+
+00:34.080 --> 00:46.519
+Alright, so first of all you can go to Techlistik.com,
+click on the Selenium link, this will navigate
+
+00:46.519 --> 00:59.800
+you to the Selenium tutorial and here you
+can find different blogs on different topics
+
+00:59.800 --> 01:10.040
+So our topic is Locators and find the
+element command. Okay, let's navigate to here
+
+01:10.040 --> 01:17.520
+Alright, so you can see there are different
+Selenium locators, ID, Class Name, Name, Link
+
+01:17.520 --> 01:30.520
+Text, Partial Link Text, Tag Name, Xpath and CSS Selector. So when you
+do automation of any web page or any web application using Selenium, you
+
+01:30.520 --> 01:37.400
+can use any one of these locators, whichever
+is available and whichever is unique
+
+01:37.760 --> 01:44.800
+Right, the locator should be unique if you
+are using it for the automation purpose
+
+01:44.800 --> 02:01.000
+So here we will take advantage of this demo
+signup form which is present on Techlistik
+
+02:01.000 --> 02:09.520
+So this signup demo form has all the web
+elements with generally registration data
+
+02:09.520 --> 02:18.520
+So we will try to find the
+elements of all these web elements
+
+02:18.520 --> 02:28.760
+So how can we do that? Let's start it. Now we are on
+this page and I will try to extract the web element
+
+02:28.760 --> 02:37.880
+For that, you have to right click on
+the web page and click on inspect
+
+02:37.880 --> 02:46.959
+Alright, this will open up a
+control on the bottom of this page
+
+02:46.959 --> 02:54.440
+So this control is basically displaying the
+HTML code of this web page and using this
+
+02:54.440 --> 03:13.320
+HTML code we will be finding the different locator ID. Okay. So first of all
+click on this cursor and navigate your cursor to the element for which you want
+
+03:13.320 --> 03:28.240
+to find the locator ID. Click on it. Okay. So we have clicked
+on this text box first name and it has highlighted this code
+
+03:28.240 --> 03:34.760
+You can see input name is equal to
+first name and then comes timing
+
+03:34.760 --> 03:40.600
+So you can see name attribute
+is present for this input box
+
+03:40.600 --> 03:56.960
+So definitely we can use the name attribute. So we have to see
+which attribute is present out of all these and whichever is present
+
+03:56.960 --> 04:02.680
+we can use that one. So we can see name
+is present and its value is first name
+
+04:02.680 --> 04:11.880
+So we can simply pick the name for
+identifying this first name text box
+
+04:11.880 --> 04:27.840
+How we are going to use it in the Serenium code? We have a command
+driver.findElement by.name and here we will write first name. Okay
+
+04:27.840 --> 04:50.400
+So how this will work? driver.findElement by.name and
+here the value will come up as this one first name
+
+04:50.400 --> 05:07.580
+You can copy from here. Yeah. Right. Okay. Let's find
+out the locator for the next text box which is last name
+
+05:07.580 --> 05:15.020
+Again I will click on the cursor and move
+my cursor to this text box and click on it
+
+05:15.020 --> 05:24.240
+Now it has highlighted this code and here
+you can see the attribute name is present
+
+05:24.240 --> 05:45.400
+and the value of the name is last name. Right. So this name we can
+locate this text box using the name attribute and in this case the value
+
+05:45.400 --> 05:58.640
+will be last name. Right. Okay. We have
+found the locators for first two text boxes
+
+05:58.640 --> 06:14.039
+Let's find the locator for the radio button for gender. Okay.
+Let's move your cursor to this radio button and click on it
+
+06:14.039 --> 06:21.919
+Now you can see the attributes which are
+present for these radio buttons are id and name
+
+06:22.440 --> 06:28.360
+So we have two attributes
+present id also and the name also
+
+06:28.360 --> 06:39.600
+You can pick any one of it. Either you can automate it
+using id or you can automate it using the name attribute
+
+06:39.600 --> 06:48.000
+So we have already used the name attribute so we
+will be using this radio button with id. Okay
+
+06:48.080 --> 07:09.600
+So what will be the command for it? driver.findElement by.id
+then in double quotes is the id value. Okay. Close. Yeah
+
+07:09.600 --> 07:19.320
+This will find the radio button Mary. Alright
+
+07:19.320 --> 07:29.080
+Let's find out the locators for these
+radio buttons. Years of experience
+
+07:29.080 --> 07:38.480
+So here you can also see id and name are present. So
+two attributes are present for these radio buttons
+
+07:38.480 --> 07:47.520
+You can pick any one of it. Either you can
+go with the id or you can go with the name
+
+07:47.520 --> 07:56.720
+So let's say I want to click on the radio
+button present for year of experience 5
+
+07:56.720 --> 08:05.160
+I'll click on it and I will see
+what's the id of it. EXP4. Okay. So
+
+08:05.160 --> 08:18.720
+How can I find it? driver.findElement by.id EXP4
+
+08:18.720 --> 08:24.280
+I'm not doing any operation as of now on
+these id's. I'm just writing them now
+
+08:24.280 --> 08:35.079
+We can perform the operation later. We can
+click on it by simply use the click command
+
+08:35.079 --> 08:49.400
+So click on the this radio button. If I want to click on
+the mail radio button, I can use .click with this. Right
+
+08:49.400 --> 09:02.600
+Similarly, we have the end these commands for entering
+the text. We can enter any text as these. Right
+
+09:02.600 --> 09:12.280
+These are the operations which we can perform
+along with these locators, locator id's. Okay
+
+09:12.280 --> 09:22.120
+So let's find out the locator id for this
+date picker. So we have id present for it
+
+09:22.120 --> 09:40.040
+Only id attribute is present. No other attribute is present. Right.
+So we can simply use by.id and the value of the id is date picker
+
+09:40.040 --> 09:51.400
+This is kind of a text box. So the command to use alongside
+this would be send keys and value of the date, whatever
+
+09:51.400 --> 10:07.319
+date you want to insert. Right.
+This command will enter the date
+
+10:07.319 --> 10:17.000
+Now let's find the locator for this text box
+
+10:17.000 --> 10:26.600
+We have id present or name present. So we can
+pick any of this attribute either id or name
+
+10:26.600 --> 10:36.600
+Similarly, for the second text box,
+we have id present and name present
+
+10:36.880 --> 10:44.200
+Right. Let's move to the automation
+tools text boxes. We have id present
+
+10:44.200 --> 10:50.000
+Id is tool 0 and name is tool.
+Id and name is present for this
+
+10:50.000 --> 10:58.240
+We can use any one of it. Again
+id and name used for it. Right
+
+10:58.240 --> 11:08.440
+Now the next thing is a select
+box. This is an interesting thing
+
+11:08.440 --> 11:15.280
+Let's find out what attribute is
+present for it. This is a select box
+
+11:15.280 --> 11:21.400
+Class is present, id is present and name
+is present. So you can pick any of it
+
+11:21.400 --> 11:34.040
+Class, id or name. You can use any one of these id
+locators for performing any operation on this select box
+
+11:35.040 --> 11:44.120
+And this is a multi select box. Let's see what
+attributes are present for this multi select box
+
+11:44.120 --> 11:57.719
+Again class is present and id is
+present. You can either pick class or id
+
+11:57.719 --> 12:04.120
+For this button, upload button, class is
+present, id is present and name is present
+
+12:04.120 --> 12:10.560
+All the three attributes are present. You
+can pick any one of it to automate this
+
+12:10.560 --> 12:23.480
+Then this link, download link, for this
+download link, do not have present any of it
+
+12:23.480 --> 12:30.840
+So in this case, if id, class or name is
+not present, in that case either we have to
+
+12:30.840 --> 12:38.920
+use xpath or the phselector or
+any of the other attributes. Right
+
+12:38.920 --> 12:52.360
+Let's first take a look at the button. For button,
+class is present, id is present and name is present
+
+12:52.360 --> 13:06.880
+You can use any of the ones and you can perform the
+submit button, submit action or the click action. Right
+
+13:06.880 --> 13:16.840
+This is a sample code for the same.
+We have a Selenium WebTether code
+
+13:16.840 --> 13:30.280
+You can see here. So driver.findElement, this command
+will find the element present on the web page by the
+
+13:30.280 --> 13:38.720
+attribute that you provide. By.name means first
+name, you have provided the name as first name
+
+13:38.720 --> 13:49.040
+So what it will tell the web page, find the
+location of the element which has the name
+
+13:49.040 --> 14:00.360
+attribute and the value of the name attribute is first name. So this much
+code will give you the location of that text box, first name text box and
+
+14:00.360 --> 14:13.959
+then .click will be performed on this location. In the next line, same
+thing, this will give you the location, the highlighted code will
+
+14:13.959 --> 14:19.719
+give you the location of the first name text
+box and you will be performing send key means
+
+14:19.719 --> 14:35.359
+you would be entering any text value inside that text box. So driver.findElement
+gives you the location of the element that you are telling the HTML
+
+14:35.359 --> 14:43.320
+code to find it. So basically you are telling the Selenium to
+find that element which attribute you have provided. Right
+
+14:43.320 --> 14:51.640
+Now, we have gone over these three
+attributes, id, class name and name
+
+14:51.640 --> 15:02.280
+What about link text? So link text
+is used for clicking on the links
+
+15:02.280 --> 15:14.040
+Suppose we have these manual links over here
+and we want to click any of these links, then
+
+15:14.040 --> 15:24.280
+how can we do that? Either we can use the locator id as
+id, class or name and if that is not present, you can
+
+15:24.280 --> 15:32.280
+simply use link text. How? Let us say I
+want to click on this link Selenium. Right
+
+15:32.280 --> 15:41.280
+This is a link for clicking on the links.
+Selenium provides a special way of clicking on it
+
+15:41.280 --> 15:57.680
+So driver.findElement, idoc, link text and
+inside that link text, what you have to provide
+
+15:57.680 --> 16:08.319
+The link text which is present here in the HTML code. Click on that
+cursor, click on the link on which you want to click using the Selenium
+
+16:08.319 --> 16:15.280
+or which you want to automate. The code
+will be highlighted in the control
+
+16:15.280 --> 16:25.280
+Copy this link, copy this text and
+paste it here and use the command .click
+
+16:25.280 --> 16:43.520
+So, this chunk of code will click on the Selenium link. Similarly,
+if you want to click on demo websites, how can you do that
+
+16:43.520 --> 16:55.840
+Same way, you can use the driver.findElement,
+by.linkText and then provide the text inside
+
+16:55.840 --> 17:07.880
+this double quote and .click. This
+will click on demo websites. Right
+
+17:07.880 --> 17:17.760
+So, link text is used for clicking on the
+links. Now comes the partial link text
+
+17:17.760 --> 17:24.160
+Partial link text is used for clicking
+on the links which are dynamic in nature
+
+17:24.480 --> 17:32.200
+You are saying this link, automation text. Let's
+say, I mean, for this website, this is a static link
+
+17:32.200 --> 17:40.360
+If text is not getting changing or on every
+refresh, the text would remain same and it
+
+17:40.360 --> 17:52.840
+would not change. So, this is a static link. But let's say this is
+a dynamic link and if I were to refresh this page, the automation
+
+17:52.840 --> 18:01.439
+text will be something else in second
+refresh and text will remain static
+
+18:01.439 --> 18:09.800
+So, we know that the automation, the first
+part is dynamic and the second part of the
+
+18:09.800 --> 18:19.639
+link is static. It would remain static. But I do not know whether
+automation will remain automation or will change to Selenium
+
+18:19.639 --> 18:28.080
+or something else when the page will be refreshed.
+So, in this case, I can use the partial link text. How
+
+18:28.080 --> 18:40.120
+Because here, I know that one part of the link
+is static and I will make use of that part
+
+18:40.120 --> 18:53.800
+So, in this case, I will use py.partial
+link text and here, which part is static
+
+18:53.800 --> 19:06.199
+Text text. So, I will give text text and I will not
+provide the first part of this link automation because
+
+19:06.199 --> 19:19.400
+that is dynamic. So, it will find out the link, the
+text which is present on the page contains, text it and
+
+19:19.400 --> 19:28.280
+click on it. So, this way we
+can use the partial link text
+
+19:28.280 --> 19:41.920
+Now comes the tag name. So, tag name is like we can find
+or locate any web element using the HTML tag name of
+
+19:41.920 --> 19:49.600
+that web element. Like in this
+case, we have the tag name select
+
+19:49.600 --> 19:58.960
+So, we can, if I want to get all the options
+present inside this, I can locate this web
+
+19:58.960 --> 20:04.840
+element using this tag name select. How
+can I do that? Driver.findElement by a dot
+
+20:04.840 --> 20:28.680
+Tag name which is select. Then I can use dot get all options
+or something like that to get all the options of this web
+
+20:29.400 --> 20:38.600
+element. So, this is how we
+can use the dot tag name
+
+20:38.600 --> 20:49.280
+Even here in the sample code, you can
+see an example is given there or not
+
+20:49.280 --> 20:54.800
+By.express, no, that example is not
+given here. All right. No issues
+
+20:54.800 --> 21:05.000
+Now comes the XPath and the CSS selector. So, if you do not have
+ID, you do not have class name, you do not have name, you do not
+
+21:05.000 --> 21:12.800
+have link text, partial link text, then
+you have to use XPath or CSS selector
+
+21:12.800 --> 21:17.960
+So, I would recommend you to use ID, class
+name or name if they are present because they
+
+21:17.960 --> 21:30.880
+are the most easiest one and most simplest one. XPath and CSS selector
+are the trickier ones, but you can also, I mean, use them in a very
+
+21:30.880 --> 21:42.040
+simple way. Let us say if you want to locate this
+first-time text box using the XPath, how can you do that
+
+21:42.040 --> 21:50.800
+Just click on this with the highlighted cursor. So, this
+code is highlighted now and you want to find the XPath
+
+21:50.800 --> 22:02.159
+So, XPath is of two types. One is absolute
+XPath and the other one is relative XPath
+
+22:02.159 --> 22:12.000
+So, it is two types of XPath
+
+22:12.000 --> 22:23.000
+So, absolute XPath is the XPath which starts
+from the first element of the HTML, from HTML
+
+22:23.000 --> 22:35.320
+to the element which we want to locate, that is absolute.
+And the relative is we can start from anywhere in between
+
+22:35.320 --> 22:45.919
+It does not start from the first tag of
+the HTML. Okay, let us find the XPath
+
+22:45.919 --> 22:55.840
+Right click on this input tag, then go into the
+copy. Here you can see copy XPath and copy full XPath
+
+22:55.840 --> 23:01.600
+If you will click on copy full XPath, it
+will fetch the absolute XPath of this person
+
+23:01.600 --> 23:05.640
+Let us click on it. It has
+fetched it. Let us paste here
+
+23:05.640 --> 23:19.360
+Okay, you can see now. So, this is the XPath, this is the
+full XPath, absolute XPath of this first-name text box
+
+23:19.360 --> 23:24.640
+which we have just fetched. You
+can use this in your code. How
+
+23:24.640 --> 23:47.640
+The same way. Driver.findElement by.XPath. In double quotes,
+you have to provide this XPath and then choose the end keys
+
+23:47.640 --> 23:57.080
+It is any name, if you see
+
+23:57.080 --> 24:06.640
+Alright, so this is how you can use the absolute
+XPath, but absolute XPath are the riskier ones
+
+24:06.640 --> 24:14.400
+I mean, let us say if any of the element is
+added in between this HTML, then this will
+
+24:14.400 --> 24:26.440
+get changed and the next time your code will not
+work. Right, so we prefer to use relative XPath
+
+24:26.440 --> 24:36.200
+Right, click on input tag, copy and copy
+XPath. Let us see what is the relative XPath
+
+24:36.200 --> 24:43.360
+So, now you can see this has not
+started from the HTML element
+
+24:43.360 --> 24:54.679
+It has picked the XPath of this first-name
+text box, somewhere from in between, right
+
+24:54.679 --> 25:10.399
+up to the input tag. This can also be used in a
+similar way by.XPath and get the relative XPath
+
+25:11.400 --> 25:15.400
+I mean, for absolute or for relative,
+you have to use the by.XPath
+
+25:15.400 --> 25:42.400
+There are no different tags for different types of XPath. Okay. So, if you
+want to understand this XPath, then what it is saying, input, go to div3
+
+25:42.400 --> 25:49.400
+This is input and this is div3.
+This input is kind of this div
+
+25:49.400 --> 25:59.400
+This div means, there are three sibling divs,
+but this input is child of the third div
+
+25:59.400 --> 26:09.400
+That is why we are reiterating the XPath,
+input, then div3. Okay, we got the div3
+
+26:09.400 --> 26:17.400
+This is the div3, 1, 2, 3. Then,
+who is the parent of this div, then
+
+26:17.400 --> 26:25.400
+Yes, this div, this is the
+parent of this div3. Then, div1
+
+26:25.400 --> 26:37.400
+Okay, after this, div3, div, and div1
+
+26:37.400 --> 26:44.400
+Okay, you can see, there are three div
+siblings and we are in the first one
+
+26:44.400 --> 26:54.400
+That's why we are using div1. And then, postBody
+
+26:54.400 --> 27:06.400
+We have used the id attribute, id, postBody is
+this, //, star, as there is id, postBody is this
+
+27:06.400 --> 27:13.400
+So, we have, I mean, this has created the
+relative XPath from here, from this div
+
+27:13.400 --> 27:24.400
+So, this input. So, this will create the relative XPath
+from any element which has a unique id, name or class
+
+27:24.400 --> 27:30.400
+This has a unique id. That's why it has
+created the relative XPath from this div
+
+27:30.400 --> 27:42.400
+So, here it has given the star. You can also replace
+this star with div, because this element is this
+
+27:43.400 --> 27:51.400
+Right? div, as there is id,
+postBody is this. Then, go to div1
+
+27:51.400 --> 28:00.400
+Here we are. Then, go to div.
+Okay. Div, and then go to div3
+
+28:00.400 --> 28:12.400
+Yes, we are in div3. And then, input.
+And here, in div3, we have the input tag
+
+28:12.400 --> 28:21.400
+So, this is how we find the
+relative XPath. I hope you got it
+
+28:21.400 --> 28:29.400
+So, the similar way, we can
+also find the CSS selector also
+
+28:29.400 --> 28:40.400
+Click on this highlighted tag. Click
+on copy. And then, copy selector
+
+28:40.400 --> 28:52.400
+This will fetch the CSS. Here you can see
+
+28:53.400 --> 29:00.400
+So, this is also similar to the relative
+XPath. Only the syntax is different
+
+29:00.400 --> 29:17.400
+Here you can see, hash, postBody. Hash means the id. So, it is creating
+the CSS selector from an element which has the id, postBody, this
+
+29:17.400 --> 29:31.400
+Hash means the id. Then, this symbol represents
+that this element is child of the next element
+
+29:31.400 --> 29:40.400
+So, it is representing that. Now, go to the
+child of the element which has id, postBody
+
+29:40.400 --> 29:53.400
+And the element is this. And
+mfchild1. And then, go to
+
+29:53.400 --> 29:58.400
+I mean, you can see the similar
+format they have used. div mfchild1
+
+29:58.400 --> 30:07.400
+Here, we have simply given the div1. Here, we are
+using this mfchild extra syntax along in the CSS
+
+30:07.400 --> 30:14.400
+Then, div. Then, div mfchild3. Here, we
+have given the div3. And then, input
+
+30:14.400 --> 30:23.400
+So, in the similar way, you can use the CSS
+also. You do not have to type your own CSS
+
+30:23.400 --> 30:40.400
+You can simply got the CSS from here. Right-click on the
+element which you want to fetch the CSS. Copy. Copy. Selector
+
+30:41.400 --> 30:52.400
+And just paste it. Alright. Simple enough. So,
+this is how you can use the CSS selector itself
+
+30:54.400 --> 31:03.400
+You can see in this tutorial, there are some examples given
+how you can use the different driver find element command
+
+31:03.400 --> 31:14.400
+There are the different element command. So, you can use the CSS using
+driver.findElement by the CSS selector and then get that CSS selector in the double call
+
+31:14.400 --> 31:29.400
+And you can perform any action on that. I hope you understand the
+Selenium locators and how we can use them to automate using Selenium
+
+31:30.400 --> 31:36.400
+If you like this video, please
+share and subscribe to our channel
+
+31:37.400 --> 31:38.400
+Thank you

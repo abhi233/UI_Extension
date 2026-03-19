@@ -124,11 +124,11 @@
         ></textarea>
 
         <div class="command-toolbar">
-          <button id="listenBtn" class="secondary">Start Listening</button>
+          <button id="listenBtn" class="secondary">Open Voice Capture</button>
           <button id="addCommandBtn" class="accent">Add Command Event</button>
         </div>
 
-        <p id="commandHint" class="summary-text">Supported now: title and URL validations, including contains checks.</p>
+        <p id="commandHint" class="summary-text">Supported now: title and URL validations, including contains checks. Voice opens in a dedicated window.</p>
       </section>
 
       <section class="panel export-panel">
@@ -141,6 +141,7 @@
 
       <p id="message" class="message" aria-live="polite"></p>
     </main>
+    <script src="command-utils.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

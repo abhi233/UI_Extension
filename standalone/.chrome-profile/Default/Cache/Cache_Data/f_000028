@@ -1,0 +1,1010 @@
+WEBVTT
+
+00:00.000 --> 00:07.000
+Hello friends, today I am going to teach
+you how we can use Selenium with Python
+
+00:07.000 --> 00:17.000
+Let's go to the agenda slide first. So,
+I will give you a Selenium introduction
+
+00:17.000 --> 00:27.000
+I will tell you the different Selenium components. I will give
+you overview regarding the Selenium web driver architecture
+
+00:27.000 --> 00:43.000
+We will see how we can set up the Selenium. And we will try to write
+and explain the demo scripts for Selenium with Python. Alright. Okay
+
+00:43.000 --> 00:52.000
+So, first of all, what is Selenium? Selenium is
+a browser-based web application testing tool
+
+00:53.000 --> 00:59.000
+It is only used for functional
+testing or you can say web testing
+
+00:59.000 --> 01:09.000
+And what do I mean by web testing? Web testing means
+anything that is, you know, that works on a web browser
+
+01:09.000 --> 01:20.000
+So, that is called web. And anything which can be
+opened on a browser that can be tested using Selenium
+
+01:20.000 --> 01:32.000
+That is called web testing. If you talk about other type of
+applications, like we have mobile apps, we have desktop applications
+
+01:32.000 --> 01:42.000
+So, like we have some chatting applications
+that are installed on our laptop or system
+
+01:43.000 --> 01:57.000
+Like Macintosh or Yahoo, Skype, they are desktop applications. Although they are
+using internet, but they are desktop applications and they are not web applications
+
+01:57.000 --> 02:11.000
+So, those applications cannot be tested using Selenium. Selenium can
+only test those applications which can be opened on a web browser. Right
+
+02:12.000 --> 02:22.000
+There are some other tools available in the market which
+can be used for testing different types of applications
+
+02:22.000 --> 02:35.000
+Like if I want to automate a mobile application, then I
+can use APM, which is written on the top of Selenium's API
+
+02:35.000 --> 02:46.000
+It is very much, I mean, its commands are very much similar
+to Selenium, but it can be used for mobile automation. Right
+
+02:46.000 --> 02:52.000
+Similarly, for desktop applications, there are
+other tools which are available in the market
+
+02:52.000 --> 03:01.000
+So, Selenium is open source. It has an open
+source license, which means it is freeware
+
+03:01.000 --> 03:10.000
+It is available on the internet. Anyone can
+download it, install it, and can use this tool
+
+03:10.000 --> 03:21.000
+You do not have to pay to use this. It is extensible
+framework, means it has extensive support
+
+03:21.000 --> 03:30.000
+It has extensive features which we can
+use to automate our web applications
+
+03:31.000 --> 03:40.000
+And it supports a large number of programming languages.
+So, you can choose any of the languages of your choice
+
+03:40.000 --> 03:56.000
+It supports Java, C Sharp, Python, Ruby, HTML, and PHP. So, you can
+pick any of the languages out of these and write the Selenium code
+
+03:57.000 --> 04:05.000
+It supports native browser testing. Like I
+mentioned, it only supports web browser testing
+
+04:05.000 --> 04:16.000
+It cannot test other types of applications. Right.
+So, these are some of the advantages of Selenium
+
+04:16.000 --> 04:22.000
+Let us move forward to Selenium components.
+So, Selenium has different components
+
+04:23.000 --> 04:30.000
+You can also say Selenium has different
+versions. The first one is the Selenium IDE
+
+04:31.000 --> 04:41.000
+Selenium IDE is a record and play kind of tool. In
+Selenium IDE, you do not have to write the code
+
+04:41.000 --> 04:52.000
+You can simply click on the recording button. Then,
+perform some actions on the web application or website
+
+04:52.000 --> 05:01.000
+And then click on stop. And it would generate an
+HTML script for your actions that you have performed
+
+05:01.000 --> 05:11.000
+And you can save that HTML script. And you can
+run that script anytime, whenever you want to
+
+05:12.000 --> 05:17.000
+But it can only be used for
+very simple kind of testing
+
+05:17.000 --> 05:31.000
+You cannot do complex testing along with Selenium IDE. Because
+it does not support the effect conditioning and the looping
+
+05:31.000 --> 05:40.000
+So, these two are one of the most important
+features of any programming language
+
+05:40.000 --> 05:49.000
+And when you try to automate or when you try to test
+any complex feature of a website or a web application
+
+05:49.000 --> 05:59.000
+Then obviously you would need if-else conditioning, you would
+need loops. So, this feature is missing from Selenium IDE
+
+06:01.000 --> 06:08.000
+So, that is why it is not very popular. The
+second version of Selenium is Selenium RC
+
+06:08.000 --> 06:14.000
+That is called Selenium Remote Control.
+It is also called as Selenium 1
+
+06:16.000 --> 06:21.000
+So, the disadvantages that were in
+the Selenium IDE, like I mentioned
+
+06:21.000 --> 06:28.000
+missing of if-else conditioning and
+looping, that was resolved in Selenium RC
+
+06:28.000 --> 06:33.000
+So, in Selenium RC, you can pick any of
+the languages and you can write your code
+
+06:35.000 --> 06:43.000
+But there were some flaws in Selenium RC and then
+comes a newer version of Selenium, which is Selenium 2
+
+06:43.000 --> 06:55.000
+And right now, which is very popular, Selenium WebDriver. So, the current
+version of Selenium WebDriver that is available in market is Selenium 4
+
+06:58.000 --> 07:12.000
+And Selenium WebDriver is a tool where we can pick any of the
+languages, Java, C Sharp, Python, PHP, Ruby and write our code
+
+07:12.000 --> 07:18.000
+So, today we will be learning the
+Selenium WebDriver along with the Python
+
+07:19.000 --> 07:30.000
+Selenium Grid is a different component of
+Selenium. It has different functionality
+
+07:30.000 --> 07:42.000
+It is not an automation testing tool, whether it is a node
+and what we can say, server and client like application
+
+07:42.000 --> 07:58.000
+where you can create one of the system as Selenium server and you
+can register other systems as Selenium node with the Selenium server
+
+07:59.000 --> 08:13.000
+Right, and you can execute your test and you can execute and you can
+monitor your test execution on the Selenium node from your Selenium server
+
+08:13.000 --> 08:21.000
+So, let's say you want to execute your test on a
+Windows machine, on a Linux machine and on a Mac machine
+
+08:22.000 --> 08:36.000
+So, what you can do is you can set up these three machines as Selenium nodes and you can
+register these three machines on to one another system, which would be Selenium server
+
+08:36.000 --> 08:45.000
+And you can start your execution from the Selenium server
+on to these machines and you can also control the execution
+
+08:45.000 --> 08:52.000
+You can monitor the results and so, this
+sort of feature Selenium Grid brings in
+
+08:56.000 --> 09:11.000
+Okay, now comes the Selenium WebDriver architecture. So, you can see here
+like you would write a Selenium script in any of the languages of your choice
+
+09:11.000 --> 09:32.000
+Let's say we have written this script in Python. Then, when you execute that script, it sends
+some of the instructions using the Selenium server to the web browser, to any of the browser
+
+09:32.000 --> 09:40.000
+I mean Selenium supports almost every browser
+like it supports Chrome, Firefox, Edge, Opera
+
+09:42.000 --> 09:49.000
+So, Selenium server translates our code and
+sends the instructions to the web browser
+
+09:49.000 --> 09:59.000
+It basically interacts with the web browser. Whatever action you want to
+perform using your code, Selenium server sends that instruction to the browser
+
+09:59.000 --> 10:08.000
+and browser in return executes that instruction
+and sends back the response to the Selenium server
+
+10:08.000 --> 10:15.000
+that whether that command or that instruction
+has been executed successfully or not
+
+10:17.000 --> 10:33.000
+So, this is how Selenium works. Now comes the setup part.
+So, you can download and install Python from this URL
+
+10:33.000 --> 10:39.000
+I will provide all these URLs
+in the description of the video
+
+10:39.000 --> 10:48.000
+So, you can download the latest Python
+from this URL. Right, and install it
+
+10:48.000 --> 10:57.000
+So, this is the official Python website.
+You can download and install it
+
+11:00.000 --> 11:10.000
+Then, you have to install the PyCharm which is
+the IDE for writing the Selenium and Python code
+
+11:10.000 --> 11:17.000
+This is also a free version. It
+can be downloaded from this URL
+
+11:17.000 --> 11:29.000
+Let me show you. Yeah. So, when you open this URL,
+JetBrains, they are the developers of this IDE, PyCharm
+
+11:29.000 --> 11:39.000
+You have to download the community version, not the
+professional one. Professional version is the paid one
+
+11:39.000 --> 11:46.000
+So, you can simply download the
+community version and install it. Right
+
+11:46.000 --> 11:54.000
+After installing Python and after setting up the
+Python, now it's the time to install Selenium
+
+11:54.000 --> 12:01.000
+So, you can install Selenium using
+this URL. So, what you have to do is
+
+12:07.000 --> 12:16.000
+open any command prompt and first of all
+check whether Python is installed or not. Yeah
+
+12:16.000 --> 12:25.000
+So, my Python is installed here. So, I'll write
+this command. Type free install-u selenium
+
+12:25.000 --> 12:29.000
+So, what this command does is Selenium
+is already installed on your system
+
+12:29.000 --> 12:35.000
+It will upgrade your system. So, you
+can install it. You can install it
+
+12:35.000 --> 12:39.000
+You can install it. You can install it.
+You can install it. You can install it
+
+12:39.000 --> 12:43.000
+You can install it. You can install it.
+You can install it. You can install it
+
+12:43.000 --> 12:47.000
+You can install it. You can install it.
+You can install it. You can install it
+
+12:47.000 --> 12:52.000
+So, it will upgrade the Selenium version to
+the latest one and if Selenium is not installed
+
+12:52.000 --> 12:58.000
+it will install the latest version of
+the Selenium. Click enter. Alright
+
+12:58.000 --> 13:03.000
+So, Selenium was already there
+on my system. So, no action done
+
+13:05.000 --> 13:12.000
+But if you are installing Selenium for the
+first time, then it will give you a message
+
+13:12.000 --> 13:24.000
+that Selenium is installed at the end. Right. And if you want to check
+the Selenium version, what you have to do is type python and click enter
+
+13:26.000 --> 13:37.000
+Let me. Okay. So, I want to check whether Selenium
+is installed or not and the version of Selenium
+
+13:37.000 --> 13:43.000
+So, I will type python, click enter. I
+will. Now, I am inside the python control
+
+13:43.000 --> 13:53.000
+Now, I will do import Selenium. I will
+write import Selenium and now I will write
+
+13:53.000 --> 14:08.000
+After writing import Selenium, click enter and
+then write Selenium.version like this. Right
+
+14:08.000 --> 14:16.000
+And click enter. Now, it has given you
+the version installed which is 4.1.0
+
+14:16.000 --> 14:35.000
+So, Selenium is installed on my system. That is verified. Alright. Now, the next
+step is you would need the Chrome and Gecko drivers for executing your Selenium code
+
+14:35.000 --> 14:40.000
+So, basically these drivers are required
+for Selenium to interact with the browser
+
+14:40.000 --> 14:47.000
+If you want to run your code on the Chrome
+driver, you would need to download the Chrome
+
+14:47.000 --> 14:54.000
+driver and if you want to execute your code on
+Firefox, in that case, you have to download
+
+14:54.000 --> 15:13.000
+the Gecko driver from this URL. So, these URLs you
+can find from here on this Selenium page. Right
+
+15:13.000 --> 15:24.000
+From there, you can copy this command type
+install selenium. This is the pypy.org page
+
+15:25.000 --> 15:32.000
+The same command you can see here. Here
+are the URLs for the Chrome driver
+
+15:32.000 --> 15:37.000
+This is for Chrome, this is for
+Edge, this is for Firefox and Safari
+
+15:38.000 --> 15:47.000
+This is for Gecko driver. You can
+download the Windows version from here
+
+15:48.000 --> 15:52.000
+If you want to execute for Chrome
+driver, then you can download it
+
+15:54.000 --> 16:00.000
+So, one thing you need to check
+is what is your Chrome version
+
+16:03.000 --> 16:09.000
+You can check the Chrome version from
+here. So, my Chrome version is 96
+
+16:13.000 --> 16:23.000
+Right. So, I would need the Chrome driver
+that is supported 96 version of Chrome
+
+16:24.000 --> 16:37.000
+I will pick this one. I will download
+this Chrome driver. Because..
+
+16:37.000 --> 16:44.000
+So, the version of the Chrome driver
+and your Chrome should be same
+
+16:45.000 --> 16:58.000
+Otherwise, the Selenium will not be launched.
+So, let's extract this. And what you will see
+
+16:59.000 --> 17:10.000
+Chrome driver. Right. Okay
+
+17:12.000 --> 17:21.000
+So, we have installed Python, installed
+PyCharm. We have also installed the Selenium
+
+17:22.000 --> 17:30.000
+And also we have downloaded the
+Chrome driver. So, this is my Python
+
+17:30.000 --> 17:37.000
+You can launch it and you can
+create a Python project here
+
+17:39.000 --> 17:48.000
+New project. Give the name of your project.
+Create. So, this will create a project like this
+
+17:48.000 --> 17:54.000
+I have created two directories inside it.
+One source directory and one test directory
+
+17:54.000 --> 18:02.000
+Test directory. And inside that test
+directory, I have placed my Chrome driver.exe
+
+18:02.000 --> 18:09.000
+And here are some other test cases.
+These are some of the Selenium steps
+
+18:11.000 --> 18:22.000
+Right. So, okay. Demo steps.
+This is a very simple demo step
+
+18:22.000 --> 18:28.000
+First of all, let me take
+you through the project to us
+
+18:30.000 --> 18:36.000
+So, you can see the settings of this
+project by clicking on this project
+
+18:36.000 --> 18:44.000
+Go to files and click on the settings.
+And then click on this Python interpreter
+
+18:45.000 --> 18:50.000
+From here, you can see all the
+Python modules that are installed
+
+18:50.000 --> 18:55.000
+You can see Selenium is already installed
+here. So, there is no problem in that
+
+18:58.000 --> 19:08.000
+Right. You can create a Python file like
+this. Right click and new Python file
+
+19:09.000 --> 19:21.000
+My first step. So, I have
+created one Python file here
+
+19:21.000 --> 19:34.000
+And I am going to write the first step. First of
+all, you have to import the Selenium WebDriver
+
+19:34.000 --> 19:48.000
+So, the import statement is from Selenium import
+WebDriver. This is the first statement of your script
+
+19:49.000 --> 19:55.000
+Now, what I will do. I will
+create an object of the WebDriver
+
+19:58.000 --> 20:12.000
+Driver is equal to WebDriver. So, when you put those
+along WebDriver, it will give you different options
+
+20:12.000 --> 20:19.000
+Which you can select. So, it gives you
+different browsers that the WebDriver supports
+
+20:19.000 --> 20:28.000
+You can see Chrome, Firefox, etc. Right. You can select
+any of the browsers on which you want to execute your test
+
+20:28.000 --> 20:37.000
+I am picking the Chrome. Docs, Chrome and here
+you have to give the path of the ChromeDriver
+
+20:37.000 --> 20:50.000
+My ChromeDriver is placed just beside my script. So,
+I can simply give the name of the my ChromeDriver.esc
+
+20:50.000 --> 20:58.000
+You can also give the full path like the location
+at which your ChromeDriver is placed on your system
+
+20:58.000 --> 21:17.000
+Like this one. This C, Users and all that. Now, my
+driver object is initialized with Chrome browser
+
+21:17.000 --> 21:24.000
+What I will do is, I will now use the first
+command which is the get command. Driver.get
+
+21:25.000 --> 21:36.000
+Which is used for opening the URL of the website. And
+I will be giving, driver.get, I will be giving any URL
+
+21:36.000 --> 21:49.000
+So, let's say. I will give this URL. python.orj.downloads
+
+21:52.000 --> 22:08.000
+Okay. So, I first scripted this. When I will execute this script, it
+will launch the Chrome browser and then open this URL on that browser
+
+22:08.000 --> 22:13.000
+Okay. Let's execute it. Right click on
+this script and then run my first test
+
+22:15.000 --> 22:27.000
+Let's see. Yeah. So, the browser has been launched
+and see this URL has been opened up on this script
+
+22:27.000 --> 22:34.000
+Oh, sorry. On this browser.
+Yeah. It is as simple as that
+
+22:37.000 --> 22:47.000
+Okay. Now, we can switch to some
+other script. The second script
+
+22:47.000 --> 22:58.000
+Now, we will perform some
+actions on some of the browsers
+
+23:03.000 --> 23:13.000
+I have already created this script for you. What
+I am doing here is, I am importing the WebDriver
+
+23:13.000 --> 23:23.000
+I am importing the By class and importing the keys. These are some of
+the command classes of the WebDriver which are required in this script
+
+23:23.000 --> 23:27.000
+So, first of all what I have did, I have
+created one object of the WebDriver
+
+23:27.000 --> 23:35.000
+You can name this object as anything. Like in
+my first script, I have named it as driver
+
+23:35.000 --> 23:42.000
+And in my second script, I have
+named it as browser. So, right
+
+23:43.000 --> 23:50.000
+Browser is equal to WebDriver.Chrome and then
+I have given the path of the ChromeDriver.exe
+
+23:50.000 --> 23:57.000
+Because it is lying just in the same
+folder where my tests are lying
+
+23:57.000 --> 24:08.000
+So, that's why I have given this path. Then I am using
+the browser.get command and I am opening this URL
+
+24:09.000 --> 24:16.000
+Pypi.org.project.illumine. I am opening
+this URL and then what I am doing
+
+24:16.000 --> 24:24.000
+I am finding the element with
+id search. How I am doing that
+
+24:24.000 --> 24:30.000
+So, let me tell you what I am doing
+here is. Now, what I want to do
+
+24:30.000 --> 24:39.000
+I have already written the code
+till the opening of this URL
+
+24:39.000 --> 24:45.000
+Now, I want to write Selenium in
+this search box and click enter
+
+24:45.000 --> 24:51.000
+For that, what I have to do is, I have
+to find the id of this search box
+
+24:51.000 --> 24:57.000
+And how can I do that? Right click on
+this search box and click on inspect
+
+24:58.000 --> 25:10.000
+The control will open up and here in the highlighted code
+you can see the id of this search box is search. Right
+
+25:10.000 --> 25:16.000
+So, I will make use of this id. So, this
+is basically called the Selenium locator
+
+25:16.000 --> 25:29.000
+If you do not have any idea of Selenium locator. I will provide the
+link of a video which I specifically made on the Selenium locator
+
+25:29.000 --> 25:39.000
+You can go through that video. Right. So, you can
+by going through that you can have a better idea
+
+25:42.000 --> 25:48.000
+Right. What are Selenium locators and how
+we can use that. So, here the id is search
+
+25:48.000 --> 26:00.000
+This is what I have used in my
+code. Browser.findElement.py.id
+
+26:00.000 --> 26:06.000
+Value of the id which is search. And
+then I am using the command .sendKeys
+
+26:06.000 --> 26:13.000
+SendKeys command is used for entering
+text into any text box. SendKeys
+
+26:13.000 --> 26:23.000
+And in SendKeys what I am doing. I am writing
+the text which I want to write in this search box
+
+26:23.000 --> 26:33.000
+It is Selenium. And plus keys. This
+keys. This keys command .return
+
+26:33.000 --> 26:41.000
+So, keys is a class in Selenium
+where it has different functions
+
+26:41.000 --> 26:55.000
+If you press control space with keys.
+You can see a lot of options here. Right
+
+26:55.000 --> 27:03.000
+So, all the keys which are present
+on the keyboard will be present here
+
+27:03.000 --> 27:12.000
+You can pick any of one. I have picked keys.return
+which would mean after writing the Selenium
+
+27:12.000 --> 27:25.000
+Selenium will click enter. Right. So, my code is completed.
+Now I will execute this code and see what it does. Run
+
+27:25.000 --> 27:38.000
+PyPy Selenium test. It has opened up.
+And you can see the execution was so fast
+
+27:38.000 --> 27:49.000
+It wrote Selenium and clicked enter. And now it is showing all
+the results which are present for Selenium on the PyPy.org page
+
+27:49.000 --> 28:00.000
+So, my script has been executed successfully
+
+28:00.000 --> 28:18.000
+So, guys till now we have written the
+Python code not using the class. Right
+
+28:18.000 --> 28:24.000
+Like my Zip script you can see we
+have not declared any class here
+
+28:24.000 --> 28:30.000
+And also in the PyPy Selenium test we
+have not declared any class. Right
+
+28:30.000 --> 28:40.000
+So, now I am going to convert this code. I
+will rewrite this code using the Python class
+
+28:40.000 --> 28:46.000
+And setup and teardown matters.
+So, I will be using unit test
+
+28:46.000 --> 28:53.000
+I will explain what is unit test and
+what is the use case of unit test
+
+28:53.000 --> 29:09.000
+First let me create a class. I am declaring one class.
+You can name the class anything like my test class
+
+29:09.000 --> 29:18.000
+So, I have given the name to
+the class my test class. Right
+
+29:18.000 --> 29:30.000
+And I will be using unit test. So, unit test is
+nothing but a unit testing framework in Python
+
+29:30.000 --> 29:39.000
+You have to import it. Import unit test. So, when you
+have installed Java it will be installed by default
+
+29:39.000 --> 29:44.000
+Oh sorry. When you install Python it will
+be by default installed alongside it
+
+29:44.000 --> 29:57.000
+So, now I have imported it. And now
+I have to inherit unit test.testcase
+
+29:57.000 --> 30:06.000
+So, what I have done here is my class my test
+class is inheriting unit test.testcase class
+
+30:06.000 --> 30:22.000
+Which means my test class is child of unit test.testcase class. So,
+by doing that I will be using the functionalities of the unit test
+
+30:22.000 --> 30:36.000
+So, what functionality this provide I will tell you now. So,
+by using unit test I can create setup and teardown methods
+
+30:37.000 --> 30:46.000
+Can use a simple text. Def setup. So,
+I have created a method named setup
+
+30:46.000 --> 30:56.000
+And self is a keyword which is actually used
+when you declare a method inside a class
+
+30:56.000 --> 31:12.000
+So, in that setup method what I will do. I will put this code
+the driver web driver object code inside this setup method
+
+31:12.000 --> 31:20.000
+But if I want to use this driver in my other
+method in the same class then I have to use
+
+31:20.000 --> 31:29.000
+self alongside it self.driver. Self
+means self made it a task variable
+
+31:29.000 --> 31:39.000
+Which means this variable now can be used within
+any method which is lying inside this class
+
+31:39.000 --> 31:50.000
+If I want to use self then this
+variable would be a local variable
+
+31:50.000 --> 31:58.000
+And it can only be used inside this setup method
+only. It cannot be used outside this setup method
+
+31:58.000 --> 32:06.000
+So, we have declared the driver as self and
+now I will create one other method which is
+
+32:06.000 --> 32:22.000
+teardown method. Not teardown class I will create teardown.
+Again the parameter is self means this is a class method
+
+32:22.000 --> 32:32.000
+And in this now you would see that I am able to
+access the driver object inside this teardown
+
+32:32.000 --> 32:47.000
+method because we have declared it as self.driver.quit. So, this command
+this quit command is used to close all the browser instances which are
+
+32:47.000 --> 32:55.000
+opened by the Selenium. So, setup method
+will be executed at the beginning
+
+32:55.000 --> 33:06.000
+What it will do it will open the Chrome
+browser and then open this URL inside it
+
+33:07.000 --> 33:21.000
+Let's use some more command self.driver.maximize window.
+So, this command maximize window will maximize the browser
+
+33:23.000 --> 33:31.000
+Right. This will maximize the browser. Now
+what I will do I will create one test method
+
+33:32.000 --> 33:38.000
+So, test method should be started with the
+prefix test and then you can give any name
+
+33:38.000 --> 34:03.000
+to your test method. MyFirstTest. And inside
+this method you can write your test case code
+
+34:05.000 --> 34:18.000
+Right. So, now what we are going to do is we are
+going to automate one dummy registration form
+
+34:19.000 --> 34:36.000
+Let's open teclastic.com. Go to demo website. And here you can
+find 10-demo website for Selenium automation testing practice
+
+34:36.000 --> 34:43.000
+I will open the first one teclastic
+automation practice form. Yeah. This one
+
+34:43.000 --> 34:52.000
+So, you can see this is a practice form and
+there are some text boxes, radio buttons
+
+34:53.000 --> 35:08.000
+date ticker, text boxes, select box, multi select
+box, upload image, simple button, download link
+
+35:08.000 --> 35:26.000
+So, you can automate this form, this practice form using Selenium. So, when you
+will be automating this practice form to which you would come across all the
+
+35:26.000 --> 35:33.000
+Selenium commands. So, it will give you a good
+practice. So, I have already automated this form here
+
+35:38.000 --> 35:49.000
+Right. I have the setup method here what I am doing.
+I am actually creating a test of the service class
+
+35:49.000 --> 35:54.000
+So, there is something you can either use
+this or you can use the same way like we have
+
+35:54.000 --> 36:04.000
+declared here. And we have passed the path of the
+driver to the service and which is actually we are
+
+36:04.000 --> 36:13.000
+passing to webdriver.chrome. And we are maximizing
+the window driver.get. We are opening the URL
+
+36:13.000 --> 36:23.000
+This is a variable we have declared here. Navigate URL.
+Right. In the tier-1, we have used self.driver.quick
+
+36:25.000 --> 36:33.000
+So, for the first name, we have used first
+name is equal to self.driver.findElement by.id
+
+36:33.000 --> 36:44.000
+first name. So, this is a similar form, the
+moqa.com automation practice form which is similar
+
+36:44.000 --> 36:50.000
+to this one. So, we have to
+inspect the element of this form
+
+36:50.000 --> 36:56.000
+You can see the name is present, first
+name. You can use the name attribute here
+
+36:57.000 --> 37:10.000
+This is what we have used driver.findElement
+by.id. Alright. We will open the dynmo.qa form
+
+37:12.000 --> 37:21.000
+Because this code is written for this automation
+form. Right. You can inspect the element
+
+37:25.000 --> 37:29.000
+id. id is given, first name.
+We have used by.id first name
+
+37:30.000 --> 37:35.000
+Similarly, we are using the 10 keys.
+We are writing the name as jessie
+
+37:36.000 --> 37:45.000
+Last name, 10 keys, maurya. We are using
+by.id, last name. You would see last name
+
+37:46.000 --> 37:55.000
+Yes, the id is last name. So, in the similar way,
+we are automating the email id by using the id
+
+37:55.000 --> 38:05.000
+We are giving the id here. And we are
+using the x bar for selecting the gender
+
+38:08.000 --> 38:22.000
+So, for selecting gender. We are. Yeah
+
+38:22.000 --> 38:34.000
+This one. This radio button, id gender radio. Gender
+radio 2. We have used x bar, contains, text, female
+
+38:36.000 --> 38:46.000
+We are clicking on it. Then, we are
+automating the. Mobile number field
+
+38:46.000 --> 38:54.000
+We are giving some random value inside
+it. Then, we are writing the date of birth
+
+38:55.000 --> 39:04.000
+Right. You can give any date. And
+then, we are writing the subject
+
+39:06.000 --> 39:16.000
+Here. Subject, we are taking the
+hobbies. Right, the current job
+
+39:20.000 --> 39:27.000
+All right. So, this is our setup
+method. This is our teardown method
+
+39:27.000 --> 39:31.000
+And this is our test method.
+So, how they will be executed
+
+39:31.000 --> 39:36.000
+First of all, the setup method will be
+executed. It will start the execution
+
+39:36.000 --> 39:44.000
+It will open a browser. Chrome. And then, maximize
+it. And open the URL, which we have provided here
+
+39:45.000 --> 39:51.000
+Then, the execution would continue. Then,
+the execution would come to test case
+
+39:51.000 --> 39:58.000
+Not, it will not go to the teardown. It will come to test
+case. And it will execute all the code written in the test case
+
+39:59.000 --> 40:06.000
+And once, this code is executed. Then, in
+the last, teardown method will be executed
+
+40:07.000 --> 40:14.000
+And, what it will do? It will close the browser.
+Because, our test case execution is completed
+
+40:14.000 --> 40:19.000
+And we want to quit the browser.
+So, let's execute this test case
+
+40:19.000 --> 40:23.000
+And then, we will see how it will
+be executed. Run as unit test
+
+40:23.000 --> 40:35.000
+Now, this. Because, this class is a unit test class.
+So, this code will not be executed as a Python code
+
+40:35.000 --> 40:43.000
+This will be executed as a unit test.
+So, I click on it and run unit test. Okay
+
+40:47.000 --> 40:53.000
+It has opened the browser. And
+it is entering all the data
+
+40:53.000 --> 41:03.000
+You can see that. One test case has executed
+
+41:03.000 --> 41:13.000
+And it has passed. Right. And, you saw that
+
+41:13.000 --> 41:21.000
+The browser was closed itself by the
+Selenium. I just command driver.quit
+
+41:24.000 --> 41:31.000
+So, this way we can write our automation
+code using the classes and methods
+
+41:31.000 --> 41:36.000
+And using the unit test framework.
+I hope the things are clear to you
+
+41:40.000 --> 41:48.000
+If you would have any questions. Please write those
+questions or queries or doubts in the comment section
+
+41:49.000 --> 41:58.000
+I will reach out to you. And I am going to provide all the
+links that I have used in this video in the description box
+
+42:01.000 --> 42:04.000
+Alright. Thank you very much

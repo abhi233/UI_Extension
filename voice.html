@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UI-Recorder Voice Capture</title>
+    <link rel="stylesheet" href="voice.css" />
+  </head>
+  <body>
+    <main class="voice-app">
+      <header class="voice-hero">
+        <div>
+          <p class="eyebrow">Dedicated Voice Window</p>
+          <h1>Voice Capture</h1>
+          <p class="hero-copy">Speak a supported validation command, review the transcript, then add it to the current recording session.</p>
+        </div>
+        <div id="voiceStatus" class="status-badge idle">Idle</div>
+      </header>
+
+      <section class="panel">
+        <div class="section-head">
+          <h2>Command Label</h2>
+          <p id="commandLabelText">add validation</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <h2>Transcript</h2>
+          <p>Supported now: title and current URL validations, including contains checks.</p>
+        </div>
+
+        <textarea
+          id="voiceCommandInput"
+          rows="5"
+          placeholder="Examples: validate the title, validate title contains login, validate current url"
+        ></textarea>
+
+        <div class="button-row">
+          <button id="startVoiceBtn" class="primary">Start Listening</button>
+          <button id="stopVoiceBtn" class="secondary">Stop</button>
+        </div>
+
+        <button id="addVoiceCommandBtn" class="accent wide">Add Command Event</button>
+        <p id="voiceHint" class="hint">Start listening, speak the command, review the transcript, then add the event.</p>
+      </section>
+
+      <p id="voiceMessage" class="message" aria-live="polite"></p>
+    </main>
+
+    <script src="command-utils.js"></script>
+    <script src="voice.js"></script>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+:root {
+  --paper: #f7f1e4;
+  --panel: rgba(255, 252, 246, 0.94);
+  --panel-border: rgba(95, 73, 46, 0.18);
+  --ink: #1f2933;
+  --muted: #5c6773;
+  --teal: #0e6f68;
+  --teal-dark: #0a5953;
+  --amber: #d97706;
+  --amber-dark: #b45309;
+  --danger: #b42318;
+  --success: #166534;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top right, rgba(14, 111, 104, 0.16), transparent 34%),
+    linear-gradient(180deg, #efe4cf 0%, var(--paper) 58%, #f9f6ef 100%);
+}
+
+.voice-app {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.voice-hero,
+.panel {
+  border-radius: 18px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  box-shadow: 0 14px 34px rgba(52, 43, 24, 0.1);
+}
+
+.voice-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 18px;
+}
+
+.panel {
+  margin-bottom: 14px;
+  padding: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 16px;
+}
+
+.hero-copy,
+.section-head p,
+.hint,
+#commandLabelText {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.status-badge {
+  min-width: 78px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.status-badge.idle {
+  color: #7a4b12;
+  background: rgba(217, 119, 6, 0.12);
+}
+
+.status-badge.listening {
+  color: #ffffff;
+  background: var(--teal);
+}
+
+.status-badge.error {
+  color: #ffffff;
+  background: var(--danger);
+}
+
+textarea {
+  width: 100%;
+  min-height: 140px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(124, 104, 76, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: rgba(14, 111, 104, 0.7);
+  box-shadow: 0 0 0 3px rgba(14, 111, 104, 0.12);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+button {
+  min-height: 40px;
+  border: 1px solid rgba(95, 73, 46, 0.18);
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.primary {
+  background: var(--teal);
+  color: #ffffff;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--teal-dark);
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+}
+
+.accent {
+  background: var(--amber);
+  color: #ffffff;
+}
+
+.accent:hover:not(:disabled) {
+  background: var(--amber-dark);
+}
+
+.wide {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.message {
+  min-height: 42px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(95, 73, 46, 0.2);
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.message.success {
+  color: var(--success);
+  border-color: rgba(22, 101, 52, 0.22);
+  background: rgba(240, 253, 244, 0.88);
+}
+
+.message.error {
+  color: var(--danger);
+  border-color: rgba(180, 35, 24, 0.22);
+  background: rgba(254, 242, 242, 0.9);
+}

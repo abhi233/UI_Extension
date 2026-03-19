@@ -1,0 +1,9 @@
+{
+  "name": "ui-recorder-standalone",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone UI recorder using Chrome DevTools Protocol and the existing UI-Recorder JSON schema.",
+  "scripts": {
+    "start": "node standalone/server.js"
+  }
+}

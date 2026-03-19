@@ -2,6 +2,30 @@
 
 This extension records browser actions and manual validation commands, then exports a JSON file that can be converted into Selenium code by your internal Codex workflow.
 
+## Standalone App
+
+If your organization blocks Chrome extensions, use the standalone recorder instead of the extension.
+
+Run:
+
+```bash
+node standalone/server.js
+```
+
+Then open:
+
+```text
+http://127.0.0.1:4791
+```
+
+The standalone app keeps the same JSON schema and supports:
+
+- action recording through Chrome DevTools Protocol
+- element picker validations
+- table bulk validations
+- text command validations
+- voice command capture through the standalone UI
+
 ## What It Captures
 
 - Click events
@@ -61,7 +85,7 @@ Supported now:
 - `validate current url`
 - `validate current url contains dashboard`
 
-Voice input uses Chrome speech recognition when available in the popup context. The transcript is reviewed in the command box before adding the event.
+Voice input opens in a dedicated extension window so microphone permission and speech capture are more reliable than popup-based recognition. The transcript is reviewed before adding the event.
 
 ## Validation JSON Examples
 

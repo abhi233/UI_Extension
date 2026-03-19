@@ -1,0 +1,1091 @@
+WEBVTT
+
+00:00.000 --> 00:08.000
+Hello friends, today we are going
+to cover the topic Selenium IDE
+
+00:08.000 --> 00:17.000
+So, the name of the tutorial is Selenium
+IDE tutorial and there is no coding required
+
+00:17.000 --> 00:29.000
+Ok, first of all let's go to the agenda slide. So, we are going to
+cover Selenium IDE introduction, install and setup Selenium IDE
+
+00:29.000 --> 00:39.000
+features of Selenium IDE, most commonly used Selenium IDE
+commands, record and execute automation steps with Selenium IDE
+
+00:39.000 --> 00:51.000
+We will record three automation steps and in the end we
+will see the differences between Selenium IDE and WebDriver
+
+00:51.000 --> 01:02.000
+Ok, so let's start with what is Selenium IDE. So,
+Selenium IDE is one of the variant of Selenium tools
+
+01:02.000 --> 01:12.000
+You know, Selenium comes with different flavors
+like Selenium IDE, WebDriver, RCE, Quix, right
+
+01:12.000 --> 01:22.000
+IDE stands for Integrated Development Environment. IDE is a record
+and play case web automation tool which is used for automation testing
+
+01:22.000 --> 01:35.000
+and it can only be used for web automation, right. So, it's a record
+and play tool. It does not require any programming language knowledge
+
+01:35.000 --> 01:43.000
+So, what you can do is you can just launch
+Selenium IDE and do some manual operations
+
+01:43.000 --> 01:49.000
+Then Selenium IDE will record all those manual
+operations and convert those operations into commands
+
+01:49.000 --> 02:01.000
+and it will automatically generate the scripts for you.
+So, it is one of the simplest web-based automation tools
+
+02:01.000 --> 02:06.000
+Ok, so how can we install
+and set up the Selenium IDE
+
+02:06.000 --> 02:16.000
+So, first of all let me tell you one thing that it comes as
+a plugin for different browsers, not different you can say
+
+02:16.000 --> 02:22.000
+It comes only with Firefox and Chrome. So,
+this is one of the limitations of Selenium IDE
+
+02:22.000 --> 02:36.000
+It supports only Firefox and Chrome. So, first of all
+let's see how we can install the Selenium IDE browser
+
+02:36.000 --> 02:52.000
+Alright, so what you have to do is simply go to
+the Google and type install Selenium IDE for Chrome
+
+02:52.000 --> 02:57.000
+We will be installing for Chrome
+because we are using the Chrome browser
+
+02:57.000 --> 03:05.000
+Ok, here is the link. You can simply click on this
+link and it will take you to the Chrome web store
+
+03:05.000 --> 03:16.000
+Here you can see the Selenium IDE plugin and it is developed
+by Selenium HQ which is the official developer of Selenium IDE
+
+03:16.000 --> 03:29.000
+And this is the install button, add to Chrome. What you have to
+do is you just click on this button and it will ask you to add
+
+03:30.000 --> 03:43.000
+Here it is. Selenium IDE has been added to the Chrome. Alright, so Selenium is
+successfully installed. I mean the IDE is successfully installed and how can we launch it
+
+03:43.000 --> 03:50.000
+You have to click on this extensions button
+and there you can see this Selenium IDE
+
+03:51.000 --> 04:09.000
+Here you see. So, this is the welcome screen for Selenium IDE
+and we will click on this record a new test in new project
+
+04:09.000 --> 04:17.000
+You have to give the project
+name. Let's name it My Project. Ok
+
+04:17.000 --> 04:33.000
+Ok, and now you have to give the URL of your website
+or you can say the web application which you want to
+
+04:33.000 --> 04:45.000
+I am taking Selenium.dev. Ok
+
+04:45.000 --> 04:54.000
+So, we have installed the Selenium
+IDE in the Chrome browser. Right
+
+04:54.000 --> 05:03.000
+What is the next slide? Ok, here are
+some of the features of Selenium IDE
+
+05:03.000 --> 05:09.000
+So, as I already told you it
+is a record and play tool
+
+05:09.000 --> 05:23.000
+It supports limited browsers. It supports only Firefox and Chrome. So, you cannot
+test your application on other browsers like Safari or Microsoft Edge. Right
+
+05:24.000 --> 05:32.000
+Yeah. So, one of the interesting aspects of
+Selenium IDE is that it does not require any coding
+
+05:32.000 --> 05:46.000
+If you want to use this tool for automation, you can simply
+record your test and you do not have to write any code
+
+05:47.000 --> 06:02.000
+But due to this feature, it also has some limitations. With Selenium IDE, you
+cannot add the coding logic like if-else conditions or loop in your script
+
+06:02.000 --> 06:13.000
+So, which you know makes it
+very, it makes it of limited use
+
+06:13.000 --> 06:25.000
+Like you can only test very simple applications with Selenium
+IDE and you cannot test complex applications with it
+
+06:25.000 --> 06:38.000
+No code reusability. So, as we cannot you know create any
+methods in Selenium IDE scripts, so there is no code reusability
+
+06:38.000 --> 06:56.000
+Maintainability is quite high. Of course, you cannot create methods. So, obviously, if there are
+any changes in your application or software, then it impacts your script and it has a heavy hold
+
+06:59.000 --> 07:07.000
+Alright. So, let's move on to the next slide which
+is the most commonly used Selenium IDE command
+
+07:08.000 --> 07:12.000
+So, these are some of the most
+commonly used Selenium IDE commands
+
+07:12.000 --> 07:17.000
+First one is the open command
+which is for opening the URL
+
+07:17.000 --> 07:23.000
+SetTimeout, it is for setting the
+timeout limit, I mean the timeout rate
+
+07:23.000 --> 07:36.000
+So, I mean, this timeout defines for how much time
+Selenium IDE should wait for a particular element
+
+07:36.000 --> 07:42.000
+to be present on the page before
+throwing the element not found exception
+
+07:42.000 --> 08:02.000
+WindowMaximize, yeah, so this is for maximizing the browser window. So, this is one of the
+coolest commands you can say because this command is used to store a value in a variable
+
+08:03.000 --> 08:14.000
+So, it does not give you any coding facility,
+but it gives you commands to create variables
+
+08:14.000 --> 08:24.000
+If you are using any value in your Selenium
+IDE script multiple times, let's say a username
+
+08:24.000 --> 08:30.000
+you are filling out a form and their
+username is used a number of times
+
+08:30.000 --> 08:37.000
+and let's say in future you want to
+test the same form with some other user
+
+08:37.000 --> 08:46.000
+then you have to edit that script and you have to change
+the username on all the steps where you have used it
+
+08:46.000 --> 08:52.000
+But with this store command, you can create a
+variable at the very beginning of the script
+
+08:52.000 --> 09:00.000
+So, the value of the username inside that
+variable and use that variable in that script
+
+09:00.000 --> 09:08.000
+So, if in future the username value will be changed,
+you just have to change the value in the variable
+
+09:08.000 --> 09:14.000
+and the remaining of the script will not be
+impacted. So, this is really cool feature
+
+09:15.000 --> 09:23.000
+ECO is used for printing some logs. If you want
+to print any message or log, ECO will be used
+
+09:23.000 --> 09:31.000
+CLICK AND WAIT. So, this is used for
+clicking on a link or any other element
+
+09:31.000 --> 09:37.000
+GO BACK AND WAIT. This is used for navigation,
+like the browser navigation command
+
+09:37.000 --> 09:42.000
+If you want to go back to the previous
+page, you can use this command
+
+09:42.000 --> 09:48.000
+TYPE COMMAND. So, this is used for entering
+values in a text field or text area
+
+09:48.000 --> 10:02.000
+STORY VALUE. Yeah, this is again one of the cool commands.
+You can execute any JavaScript inside it using this command
+
+10:02.000 --> 10:11.000
+If you want to execute some JavaScript on the
+web page, like for scrolling down or scrolling up
+
+10:11.000 --> 10:18.000
+you can use this command. CLICK. CLICK COMMAND is
+used for clicking on the radio buttons or text boxes
+
+10:18.000 --> 10:34.000
+SELECT. SELECT COMMAND is used for selecting the drop-down options. ADD SELECTION.
+Yeah. So, ADD SELECTION is for selecting the options in the multi-select box
+
+10:35.000 --> 10:43.000
+Right. So, SELECT is for selecting drop-down options and
+ADD SELECTION is for selecting the multiple selection boxes
+
+10:43.000 --> 10:51.000
+ASSERT TITLE. So, ASSERT commands, basically there
+are multiple ASSERT commands in the Selenium IDE
+
+10:51.000 --> 11:07.000
+ASSERT COMMAND is used to validate some point or some message. So, ASSERT commands
+are basically used at the end of the script and these are the validation points
+
+11:07.000 --> 11:16.000
+And on the basis of the ASSERT command, we find
+out that our automation script has passed or failed
+
+11:16.000 --> 11:32.000
+Right. Let's say if you are automating any login script. So, you
+have entered the username, the password, clicked on the login button
+
+11:32.000 --> 11:38.000
+And how will you verify that the login has
+been successful using the automation script
+
+11:38.000 --> 11:46.000
+After clicking the login button, there must be
+some success message or failure message like
+
+11:46.000 --> 11:54.000
+login has been successful or login has failed or
+your username or password is incorrect. Right
+
+11:54.000 --> 12:09.000
+So, you can use the ASSERT TEXT command by verifying that the
+success message is displaying or not after clicking the login button
+
+12:09.000 --> 12:17.000
+So, this way you verify or validate that
+your automation script has passed or failed
+
+12:17.000 --> 12:22.000
+In similar way, you can also assert
+some of the elements on your web page
+
+12:22.000 --> 12:32.000
+Like after login, you want to verify
+that there should be a profile tick
+
+12:32.000 --> 12:42.000
+So, you can also assert that element. Right. I'll tell you
+when we'll create the automation script. I'll show you this
+
+12:42.000 --> 12:58.000
+Alright. So, these are some of the common Selenium IDE commands. Okay. Record and Execute
+Automation Scripts. Now, we will record some of the automation scripts using the Selenium IDE
+
+12:58.000 --> 13:08.000
+Okay. So, this is my Selenium IDE and I have
+entered the URL. I will click Start Recording
+
+13:08.000 --> 13:22.000
+And it has launched this Chrome browser. I will maximize it. And here
+you can see the message which is saying that Selenium IDE is recording
+
+13:22.000 --> 13:33.000
+So, whatever operations you will perform here on this browser, Selenium
+IDE will record those actions and create commands for those actions
+
+13:33.000 --> 13:44.000
+Okay. So, what we are going to do is we will
+simply click on the different links present here
+
+13:44.000 --> 14:03.000
+And here. Support, Blog. You can also assert the title of these
+pages by right-clicking on this page and go to Selenium IDE option
+
+14:03.000 --> 14:13.000
+There you see Assert command. What
+you want to assert? Any text or title
+
+14:13.000 --> 14:29.000
+I will click on Title. Okay. Selenium IDE is recording. Okay. My test
+is completed. I just want to check that the links are clickable or not
+
+14:29.000 --> 14:35.000
+Now, I will go back to Selenium IDE
+and click this Stop Recording button
+
+14:35.000 --> 14:44.000
+Okay. I clicked Stop and it is asking
+me to give a name to this test
+
+14:44.000 --> 14:59.000
+I am giving the name Test Links. Okay. Alright. Here you see
+the name of the test is and this is the Selenium IDE script
+
+14:59.000 --> 15:07.000
+So, Selenium IDE has recorded all the
+actions which I performed just now
+
+15:07.000 --> 15:15.000
+So, you can see this is the base URL. This is
+the Open command. So, it is opening the base URL
+
+15:15.000 --> 15:19.000
+Then, it is setting the window size.
+It has maximized the window size
+
+15:19.000 --> 15:26.000
+It has clicked on the first link. So, it is
+locating the elements with the CSS locator
+
+15:26.000 --> 15:40.000
+If you have no idea about the locators,
+you can go to the eclistic.com
+
+15:40.000 --> 15:51.000
+Click on the Selenium link and on the Selenium tutorial,
+you can go to the Selenium locator strategies here
+
+15:51.000 --> 16:02.000
+You can find out the different Selenium locators and there is also a
+cool video which will tell you everything about the Selenium locator
+
+16:02.000 --> 16:09.000
+How we can use the different Selenium
+locators to locate the web elements
+
+16:09.000 --> 16:19.000
+Right. You can find out there. Alright. And here also you
+can go to the Selenium IDE tutorial which is the current one
+
+16:19.000 --> 16:28.000
+And here is all the theory part for
+the Selenium IDE tutorial. Right
+
+16:28.000 --> 16:36.000
+Okay. So, what we were doing. We
+were going through the description
+
+16:36.000 --> 16:46.000
+So, we are clicking on the different links. And Selenium IDE
+is by default capturing all the links by their CSS locator
+
+16:47.000 --> 17:06.000
+And the last command is the title command. So, I used this command to validate
+the title of the blog page which was the last link should be this. Right
+
+17:06.000 --> 17:15.000
+So, this Selenium script is recorded. Now, I
+will show you how we can execute this script
+
+17:16.000 --> 17:25.000
+So, you can see this is the Selenium IDE plugin
+and here you can see the different spans
+
+17:25.000 --> 17:33.000
+This is the test case span. This is the menu bar.
+Here you have the different options from all tests
+
+17:33.000 --> 17:39.000
+If we would have multiple test cases here, we can use
+this play button to run all the test cases present here
+
+17:39.000 --> 17:49.000
+This is for running the current test. This
+is for running the test case from some point
+
+17:49.000 --> 17:53.000
+I will show you how we can do that.
+This is the test execution page
+
+17:53.000 --> 18:01.000
+You can set the speed, slow, fast, normal,
+whatever. This is the recording button
+
+18:01.000 --> 18:06.000
+If you want to record again a new test,
+you can click on this recording button
+
+18:06.000 --> 18:13.000
+This is the stop button. This is
+the save project button. Right
+
+18:13.000 --> 18:24.000
+Let me save my project. I am saving it.
+Okay. So, the My Project is saved as
+
+18:26.000 --> 18:35.000
+If I want to again open this project next
+time, I can open it from this option. Right
+
+18:36.000 --> 18:46.000
+You can also edit the script by clicking
+on the command. You can edit from here
+
+18:46.000 --> 18:52.000
+You can select any other command or
+you can select the target, the locator
+
+18:52.000 --> 19:04.000
+You can change the locator from here. You can edit
+this script by right clicking on any of the points
+
+19:04.000 --> 19:10.000
+You can cut, copy, paste this command, delete
+this command or insert a new command. Right
+
+19:10.000 --> 19:22.000
+Like this. So, this way you
+can edit the script. Okay
+
+19:22.000 --> 19:32.000
+And this is the log section. When I will execute this
+script, all the execution logs will be displayed here. Right
+
+19:33.000 --> 19:41.000
+Alright. So, let's execute this script. We have
+recorded it. Now, I want to test this again
+
+19:41.000 --> 19:45.000
+So, what I have to do is, I have
+to just click on this run button
+
+19:45.000 --> 19:51.000
+I will click on this run button.
+Alright. So, it is executing
+
+19:51.000 --> 19:58.000
+It is clicking on the different links. You
+can see. Yeah. So, my script is executed
+
+19:58.000 --> 20:04.000
+Here you can see the execution log and my
+testing is completed successfully. My..
+
+20:06.000 --> 20:21.000
+You can see my script has been executed
+successfully. Okay. So, let me show you how..
+
+20:21.000 --> 20:38.000
+So, I just want to make this script fail. So, that's
+why I am putting some random values in this command
+
+20:38.000 --> 20:47.000
+I want my script to be failed at this point. So, I just want
+to show you that what will happen if a script will be failed
+
+20:47.000 --> 20:57.000
+Let's say this is the link. It was previously present
+on the webpage but due to some developer's error
+
+20:57.000 --> 21:08.000
+Now, it is missing from the current website.
+Right. So, let's execute it again. Okay
+
+21:16.000 --> 21:29.000
+It has stuck on this point. What it is saying? Warning! Link locators are
+deprecated in several link tests and partial indentation is critical in this test
+
+21:31.000 --> 21:35.000
+Trying to find link is equal to
+abc. So, it is trying to find
+
+21:35.000 --> 21:46.000
+But the timeout is 30 seconds. It will wait at
+least for 30 seconds before giving the exception
+
+21:57.000 --> 22:12.000
+Let me use link test. And then execute
+it. The assert statement was passed
+
+22:31.000 --> 22:41.000
+So, it is waiting for the link test abc
+
+22:41.000 --> 22:51.000
+It is actually not present. Okay
+
+22:51.000 --> 23:01.000
+So, what if I change this assert
+title? This is not the correct title
+
+23:01.000 --> 23:13.000
+And I want my script to be failed. Yes
+
+23:13.000 --> 23:20.000
+So, the script has failed because
+it could not verify the title
+
+23:20.000 --> 23:25.000
+If it is not the correct value,
+it was expecting something else
+
+23:25.000 --> 23:32.000
+That's why. So, the actual value was suppose
+Selenium which did not match with the abc
+
+23:32.000 --> 23:41.000
+So, actual value did not match with the expected
+value. Right. And the script has failed
+
+23:42.000 --> 23:49.000
+So, this is how you can, you know, this is
+how the verification is done in Selenium
+
+23:50.000 --> 24:01.000
+Now, let me create one another
+script. I will click on the test
+
+24:01.000 --> 24:14.000
+I will click on add new test. Start.
+Evert. Now, I am creating one another test
+
+24:15.000 --> 24:20.000
+I will click on the start recording.
+Okay. The browser has launched
+
+24:20.000 --> 24:28.000
+What I will do, I will search
+Selenium ID here in the search box
+
+24:28.000 --> 24:34.000
+Simply enter. The page has come
+and now I want to assert this text
+
+24:34.000 --> 24:44.000
+What I want to tell the Selenium ID is when I
+search Selenium ID here and the page will come up
+
+24:44.000 --> 24:52.000
+And on that page, the heading should be
+Selenium ID and how I can verify this heading
+
+24:52.000 --> 25:02.000
+Right click on this text. Go to
+Selenium ID, assert and text
+
+25:02.000 --> 25:13.000
+What it will do, next time the script will be executed and
+it will check after entering the text and clicking enter
+
+25:14.000 --> 25:24.000
+On this page, it will verify that this heading should
+be Selenium ID and not be something else. Okay
+
+25:28.000 --> 25:38.000
+Stop recording. So, this is the
+script. Open. Window size. Click
+
+25:39.000 --> 25:47.000
+Type Selenium ID. 10 keys. Click
+enter. And then click CSS H1
+
+25:48.000 --> 25:56.000
+This section is recorded multiple times because I did not stop
+the recording and I was clicking on that link multiple times
+
+25:56.000 --> 26:04.000
+So, I will manually delete these
+commands from here. Yeah. This is fine
+
+26:07.000 --> 26:23.000
+Okay. 10 keys. After clicking enter, it is verifying that the header
+H1 present should be Selenium ID and not something else. Okay
+
+26:23.000 --> 26:33.000
+Let's execute this script. It is entering the
+Selenium ID, clicking enter and yeah, that's it
+
+26:35.000 --> 26:54.000
+See. Search keyword has completed successfully. So, what if, let's
+say on this, I want to fail this script or let's say in future
+
+26:54.000 --> 27:03.000
+this should not, this text should not be
+Selenium ID, this should be Selenium Integrated
+
+27:03.000 --> 27:07.000
+This is changed to Selenium Integrated
+and this is the expected value
+
+27:07.000 --> 27:13.000
+Let's say in future, it will be changed to
+Selenium Integrated. Then what will happen
+
+27:14.000 --> 27:19.000
+But right now, it is coming with Selenium
+ID. So, our test case should be failed
+
+27:22.000 --> 27:37.000
+Let's execute it. Okay. See. Yes. So, our test case has failed
+because we were expecting the value Selenium Integrated
+
+27:37.000 --> 27:44.000
+But the actual value comes out Selenium ID,
+which did not match with Selenium Integrated
+
+27:44.000 --> 27:57.000
+That's why our test case has failed. So, this is how
+you can, you know, verify your condition in Selenium ID
+
+28:01.000 --> 28:18.000
+Okay. So, we have now recorded two scripts
+and now we will record one more script
+
+28:20.000 --> 28:32.000
+Go to Teclistic.com, then click on the demo website and
+there are different demo websites for Selenium practice
+
+28:32.000 --> 28:41.000
+We will open this Teclistic Automation Practice Form. Yeah. We
+will automate this practice form using Selenium ID. Alright
+
+28:42.000 --> 28:53.000
+This will give us a picture of different
+Selenium ID commands. Automate form
+
+28:54.000 --> 29:10.000
+I am adding one new test case. Okay. I have
+to change the DSHOTAR for this script. Right
+
+29:11.000 --> 29:21.000
+Start recording. Now, it has got this
+URL. Maximize it. Enter some name
+
+29:25.000 --> 29:42.000
+John McCoy. Enter mail. Experience
+file. Enter any date. Date. Pressure
+
+29:45.000 --> 29:55.000
+Select automation tool. Select North America. Multi-select commands
+
+29:56.000 --> 30:11.000
+Click. Button. That's it. Stop recording. Okay. So, it has
+recorded all the operations that we have just performed
+
+30:11.000 --> 30:18.000
+Just open. This is open command. Window
+maximize command. Click on the first name
+
+30:19.000 --> 30:24.000
+Then type the first name. The value is
+John. Then type the last name. McCoy
+
+30:25.000 --> 30:34.000
+Click on the gender radio button.
+Mouse over. Experience. Mouse out. Okay
+
+30:34.000 --> 30:42.000
+Click on the profession. Number of hours.
+This is the number of years of experience
+
+30:44.000 --> 30:53.000
+So, these are the locators. It is Selenium IDE
+identifying these elements with their locators
+
+30:54.000 --> 31:02.000
+I am again telling you, you can go to Techlistics.com Selenium
+tutorial and you can find out how we can locate these IDs
+
+31:03.000 --> 31:10.000
+So, I am just explaining you how we can do that.
+Right click on any element and click inspect
+
+31:10.000 --> 31:18.000
+It will open this console. And here
+in the HTML code, you can see the ID
+
+31:19.000 --> 31:26.000
+The different Selenium locators. ID, name, class.
+This is how Selenium IDE picks the different locators
+
+31:28.000 --> 31:37.000
+This is the way it is identifying these
+elements. Right. Okay. So, next command
+
+31:38.000 --> 31:48.000
+Type. The date. Into this
+element. If we will see
+
+31:50.000 --> 31:59.000
+We will inspect this date picker. Then we will find out that
+the ID of this date picker is ID is equal to date picker
+
+32:00.000 --> 32:07.000
+This is what Selenium IDE has used. So,
+this command is telling the Selenium IDE
+
+32:08.000 --> 32:15.000
+That. Enter this value into the
+web element whose ID is date picker
+
+32:16.000 --> 32:22.000
+On this web page. Right. All these
+commands work in the same fashion
+
+32:23.000 --> 32:30.000
+Then it is clicking on the element whose ID is
+profession1. Which is actually this Selenium web browser
+
+32:32.000 --> 32:39.000
+Then it is clicking on the element with ID
+content. Which is actually the select box
+
+32:42.000 --> 32:52.000
+Right. Then it is selecting. The North
+America from the select. Select drop down
+
+32:53.000 --> 33:01.000
+And then it is selecting different. Options from
+the multi select box using the add selection command
+
+33:01.000 --> 33:05.000
+And in the end it is just
+clicking the submit button. Right
+
+33:07.000 --> 33:15.000
+So, these are the. Same commands which
+I explained. A few minutes earlier. Okay
+
+33:15.000 --> 33:25.000
+Now what we will do. We will. Execute this
+script. We will see Selenium IDE will
+
+33:26.000 --> 33:35.000
+Fill out all the. Values into the. Practice
+form. Okay. I am starting the. Execution
+
+33:37.000 --> 33:43.000
+Now you can see. It is entering all
+the values. Entering all the values
+
+33:43.000 --> 33:50.000
+Selecting the text boxes. Radio buttons.
+Entering the date. Scrolling it down
+
+33:52.000 --> 33:59.000
+Selected the continent. And. Yeah.
+That's it. You can see the execution has
+
+34:00.000 --> 34:10.000
+Completed. Right. We have not. Added any
+third command here. Because this was just a
+
+34:10.000 --> 34:16.000
+Example script. You can also.
+Add any assert command at the end
+
+34:17.000 --> 34:26.000
+To. Assert the. Successful. The success text.
+Message. You can use the assert text command here
+
+34:27.000 --> 34:35.000
+Give that. Texted value and. Textual value. To
+validate that. Your. Your test case has passed
+
+34:35.000 --> 34:39.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+34:39.000 --> 34:43.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+34:43.000 --> 34:47.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+34:47.000 --> 34:51.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+34:51.000 --> 34:55.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+34:55.000 --> 34:59.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+34:59.000 --> 35:03.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:03.000 --> 35:07.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:07.000 --> 35:11.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:11.000 --> 35:15.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:15.000 --> 35:19.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:19.000 --> 35:23.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:23.000 --> 35:27.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:27.000 --> 35:31.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:31.000 --> 35:35.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:35.000 --> 35:39.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:39.000 --> 35:43.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:43.000 --> 35:47.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:47.000 --> 35:51.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:51.000 --> 35:55.000
+Your test case has passed. Your test case has passed.
+Your test case has passed. Your test case has passed
+
+35:55.000 --> 35:59.000
+Run current test. So see, the first two commands have been executed.
+And here you can see this yellow background. The execution has stopped
+
+35:59.000 --> 36:03.000
+So how I can execute rest of the commands step by step? Just by clicking
+on this button. I will click on it. See it has executed the next step
+
+36:03.000 --> 36:07.000
+So now I can execute the next step. So I will click on it. So now
+I can execute the next step. So now I can execute the next step
+
+36:07.000 --> 36:11.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:11.000 --> 36:15.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:15.000 --> 36:19.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:19.000 --> 36:23.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:23.000 --> 36:27.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:27.000 --> 36:31.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:31.000 --> 36:35.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:35.000 --> 36:39.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:39.000 --> 36:43.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:43.000 --> 36:47.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:47.000 --> 36:51.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:51.000 --> 36:55.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:55.000 --> 36:59.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+36:59.000 --> 37:03.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:03.000 --> 37:07.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:07.000 --> 37:11.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:11.000 --> 37:15.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:15.000 --> 37:19.000
+So now I can execute the next step. So now I can execute
+the next step. So now I can execute the next step
+
+37:19.000 --> 37:23.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:23.000 --> 37:27.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:27.000 --> 37:31.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:31.000 --> 37:35.000
+So now I can execute the next step. So now I can execute the next step.
+So now I can execute the next step. So now I can execute the next step
+
+37:35.000 --> 37:44.000
+So now I can execute the next step. So now I can execute the next step. And if
+you want to execute all of these steps in one go, you can just click on this run
+
+37:44.000 --> 37:57.000
+all test and it will execute all these steps. So this is the Selenium
+IDE and how you can use Selenium IDE for your automation testing
+
+37:57.000 --> 38:04.000
+We have stated all these test steps.
+And now let's move to the next slide
+
+38:04.000 --> 38:12.000
+So this is the last slide and it is about the
+difference between the Selenium IDE and WebDriver
+
+38:12.000 --> 38:24.000
+So for Selenium IDE, I have already explained you everything. And for
+the WebDriver, Selenium IDE requires no coding, WebDriver requires coding
+
+38:24.000 --> 38:31.000
+Selenium IDE is also open source and WebDriver
+is also open source, meaning it's a previous
+
+38:31.000 --> 38:41.000
+IDE does not support any language, but WebDriver
+supports Java, C, Sharpie, PHP, Python, Perl, Ruby
+
+38:41.000 --> 38:51.000
+And it supports almost every browser. So WebDriver supports
+every browser and IDE only supports Firefox and Chrome
+
+38:51.000 --> 39:06.000
+WebDriver is cross-platform. It supports multiple operating
+systems. And IDE also supports the different operating systems
+
+39:06.000 --> 39:17.000
+You can achieve code reusability in WebDriver. Yes, because you can
+create methods in WebDriver and automation maintenance, that part is less
+
+39:17.000 --> 39:37.000
+in WebDriver. Yeah, due to the coding part. And there is one more cool
+feature in Selenium IDE, which you can do is, if you want to export
+
+39:37.000 --> 39:43.000
+this script into some other language, you
+can just click on this script and click on
+
+39:43.000 --> 39:50.000
+the export button. And from here, you can select the
+different language in which you want to export this
+
+39:50.000 --> 40:00.000
+test script. And this will export. This will
+actually transform the script into a Java file
+
+40:00.000 --> 40:10.000
+I'm storing this as an automation
+prompt. Okay. Let's open this script
+
+40:10.000 --> 40:27.000
+All right. Hey, now you can see. So the same script has been
+converted into a Selenium WebDriver script using the Java language
+
+40:27.000 --> 40:41.000
+And you can, if you have the language knowledge,
+you can execute this script in a Java IDE
+
+40:41.000 --> 40:52.000
+And there is one other thing. I mean, if you want, you are
+running short of time, and you do not have time to create
+
+40:52.000 --> 40:58.000
+the automation scripts in Java language, then
+what you can do, you can just record the manual
+
+40:58.000 --> 41:08.000
+operations in the Selenium IDE. And then you can export those
+scripts into your favorite language or into the language
+
+41:08.000 --> 41:20.000
+which you are using for automating your project. If you want to
+export this Selenium IDE script into Python, you can also do that
+
+41:20.000 --> 41:27.000
+Now, I have exported it in
+Python. And here you can see
+
+41:27.000 --> 41:45.000
+Add it. That's not bad. Yeah, here you see. The same Selenium
+IDE script has been transformed into a Python Selenium script
+
+41:45.000 --> 41:59.000
+You can execute this script in Python also. This
+is one of the coolest features of Selenium IDE
+
+41:59.000 --> 42:08.000
+If you would have any queries on Selenium IDE or
+WebDriver. Just ask me in the comment section
+
+42:08.000 --> 42:14.000
+And don't forget to subscribe this channel. Thank you

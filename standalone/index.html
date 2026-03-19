@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UI-Recorder Standalone</title>
+    <link rel="stylesheet" href="/client.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Standalone Recorder</p>
+          <h1>UI-Recorder</h1>
+          <p class="hero-copy">Record browser steps without installing an extension. The exported JSON matches the current recorder schema for Selenium generation.</p>
+        </div>
+        <div id="statusPill" class="status-pill idle">Idle</div>
+      </header>
+
+      <section class="panel stats-panel">
+        <div class="stat-card">
+          <span class="stat-label">Recording</span>
+          <strong id="recordingNameValue" class="stat-value">Not started</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Events</span>
+          <strong id="eventCountValue" class="stat-value">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Target Page</span>
+          <strong id="selectedTargetLabel" class="stat-value">None</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Ready State</span>
+          <strong id="statusText" class="stat-value">Idle</strong>
+        </div>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="main-column">
+          <section class="panel compact-panel">
+            <div class="section-head">
+              <h2>1. Browser</h2>
+              <p>Launch a dedicated Chrome session with remote debugging, or connect to one already running on port 9222.</p>
+            </div>
+
+            <div class="compact-grid">
+              <div>
+                <label for="startUrlInput">Start URL</label>
+                <input id="startUrlInput" type="text" value="https://example.com" />
+              </div>
+              <div class="button-stack">
+                <button id="launchChromeBtn" class="primary">Launch Chrome</button>
+                <button id="connectChromeBtn" class="secondary">Connect</button>
+              </div>
+            </div>
+
+            <label for="targetSelect">Recorded Page</label>
+            <select id="targetSelect"></select>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="section-head">
+              <h2>2. Session</h2>
+              <p>Name the recording first, then start the session.</p>
+            </div>
+
+            <label for="recordingNameInput">Recording Name</label>
+            <input id="recordingNameInput" type="text" placeholder="Login smoke test" />
+
+            <div class="control-grid session-grid">
+              <button id="startSessionBtn" class="primary">Start Recording</button>
+              <button id="stopSessionBtn" class="secondary">Stop</button>
+              <button id="clearSessionBtn" class="ghost">Clear</button>
+            </div>
+          </section>
+
+          <section class="panel compact-panel validation-panel">
+            <div class="section-head">
+              <h2>3. Validation Picker</h2>
+              <p id="modeHint">Pick one element and record a single assertion like visible, text, value, or attribute.</p>
+            </div>
+
+            <label for="commandInput">Command Label</label>
+            <input id="commandInput" type="text" value="add validation" />
+
+            <div class="field-label">Validation Mode</div>
+            <div class="segmented">
+              <button id="modeSingleBtn" type="button" class="segmented-btn active">Single</button>
+              <button id="modeTableBtn" type="button" class="segmented-btn">Table Bulk</button>
+            </div>
+
+            <div id="singleConfig" class="config-group">
+              <label for="validationType">Validation Type</label>
+              <select id="validationType">
+                <option value="visible">visible</option>
+                <option value="text">text</option>
+                <option value="value">value</option>
+                <option value="attribute">attribute</option>
+              </select>
+
+              <div id="attributeField" class="config-group nested-group hidden">
+                <label for="attributeName">Attribute Name</label>
+                <input id="attributeName" type="text" placeholder="data-test" />
+              </div>
+
+              <label for="expectedValue">Expected Value</label>
+              <input id="expectedValue" type="text" placeholder="Optional. Uses current page value if empty." />
+            </div>
+
+            <div id="tableBulkConfig" class="config-group hidden">
+              <label for="tableRowStrategy">Row Strategy</label>
+              <select id="tableRowStrategy">
+                <option value="all_rows">all_rows</option>
+                <option value="row_range">row_range</option>
+              </select>
+
+              <div id="rowRangeFields" class="inline-fields hidden">
+                <div>
+                  <label for="rowStart">Row Start</label>
+                  <input id="rowStart" type="number" min="1" value="1" />
+                </div>
+                <div>
+                  <label for="rowEnd">Row End</label>
+                  <input id="rowEnd" type="number" min="1" value="1" />
+                </div>
+              </div>
+
+              <label for="tableColumns">Columns</label>
+              <input id="tableColumns" type="text" placeholder="Name, Status" />
+
+              <label for="tableKeyColumn">Key Column</label>
+              <input id="tableKeyColumn" type="text" placeholder="Order ID" />
+            </div>
+
+            <div class="action-strip">
+              <button id="pickValidationBtn" class="accent">Pick Validation Target</button>
+              <p id="validationSummary" class="summary-text">Single validation will capture one assertion from the selected element.</p>
+            </div>
+          </section>
+
+          <section class="panel compact-panel command-panel">
+            <div class="section-head">
+              <h2>4. Voice Or Text Command</h2>
+              <p>Turn a natural-language instruction into a structured validation event using the current JSON schema.</p>
+            </div>
+
+            <label for="nlCommandInput">Command</label>
+            <textarea id="nlCommandInput" rows="3" placeholder="Examples: validate the title, validate title contains login, validate current url"></textarea>
+
+            <div class="command-toolbar">
+              <button id="listenBtn" class="secondary">Start Listening</button>
+              <button id="addCommandBtn" class="accent">Add Command Event</button>
+            </div>
+
+            <p id="commandHint" class="summary-text">Supported now: title and URL validations, including contains checks.</p>
+          </section>
+
+          <section class="panel compact-panel export-panel">
+            <div class="section-head">
+              <h2>5. Export JSON</h2>
+              <p>Download the current session in the same schema used by the extension.</p>
+            </div>
+            <button id="exportBtn" class="primary export-btn">Export Session JSON</button>
+          </section>
+        </section>
+
+        <aside class="side-column">
+          <section class="panel timeline-panel">
+            <div class="timeline-head">
+              <div>
+                <h2>Recorded Steps</h2>
+                <p>Review or remove incorrect events before exporting.</p>
+              </div>
+              <span id="timelineCount" class="timeline-count">0</span>
+            </div>
+            <div id="timelineList" class="timeline-list"></div>
+          </section>
+        </aside>
+      </div>
+
+      <p id="message" class="message" aria-live="polite"></p>
+    </main>
+
+    <script src="/command-utils.js"></script>
+    <script src="/client.js"></script>
+  </body>
+</html>
