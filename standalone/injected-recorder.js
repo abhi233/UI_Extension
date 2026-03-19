@@ -19,7 +19,7 @@
   let noticeTimeoutId = null;
   let elementKeyCounter = 0;
 
-  const pendingFieldEvents = new Map();
+  const dirtyFieldElements = new Map();
   const lastFieldEventByKey = new Map();
   const elementKeys = new WeakMap();
 
@@ -327,45 +327,39 @@
       return;
     }
 
+    const elementKey = getElementKey(element);
     const details = buildFieldDetails(element);
     const action = getFieldAction(element);
     if (shouldSkipDuplicateFieldEvent(element, action, details)) {
+      dirtyFieldElements.delete(elementKey);
       return;
     }
 
+    dirtyFieldElements.delete(elementKey);
     recordEvent("change", action, element, details);
   }
 
-  function clearPendingFieldEvent(element) {
+  function clearDirtyField(element) {
     const elementKey = getElementKey(element);
-    const pending = pendingFieldEvents.get(elementKey);
-    if (!pending) {
+    if (!dirtyFieldElements.has(elementKey)) {
       return;
     }
-    window.clearTimeout(pending.timerId);
-    pendingFieldEvents.delete(elementKey);
+    dirtyFieldElements.delete(elementKey);
   }
 
-  function queueFieldEvent(element) {
+  function markFieldDirty(element) {
     if (!state.isRecording || !isRecordableFormElement(element)) {
       return;
     }
 
     const elementKey = getElementKey(element);
-    clearPendingFieldEvent(element);
-    const timerId = window.setTimeout(() => {
-      pendingFieldEvents.delete(elementKey);
-      commitFieldEvent(element);
-    }, 350);
-
-    pendingFieldEvents.set(elementKey, { timerId, element });
+    dirtyFieldElements.set(elementKey, element);
   }
 
-  function flushPendingFieldEvents() {
-    for (const [elementKey, pending] of pendingFieldEvents.entries()) {
-      window.clearTimeout(pending.timerId);
-      pendingFieldEvents.delete(elementKey);
-      commitFieldEvent(pending.element);
+  function flushDirtyFieldEvents() {
+    for (const [elementKey, element] of dirtyFieldElements.entries()) {
+      dirtyFieldElements.delete(elementKey);
+      commitFieldEvent(element);
     }
   }
 
@@ -684,7 +678,7 @@
     if (isPickerActive) {
       return;
     }
-    flushPendingFieldEvents();
+    flushDirtyFieldEvents();
     const element = event.target;
     const anchor = element?.closest?.("a[href]");
     recordEvent("click", "click", element, {
@@ -703,7 +697,9 @@
     if (!isRecordableFormElement(element)) {
       return;
     }
-    clearPendingFieldEvent(element);
+    if (!dirtyFieldElements.has(getElementKey(element))) {
+      return;
+    }
     commitFieldEvent(element);
   }
 
@@ -715,7 +711,9 @@
     if (!isRecordableFormElement(element)) {
       return;
     }
-    clearPendingFieldEvent(element);
+    if (!dirtyFieldElements.has(getElementKey(element))) {
+      return;
+    }
     commitFieldEvent(element);
   }
 
@@ -727,14 +725,14 @@
     if (!isRecordableFormElement(element)) {
       return;
     }
-    queueFieldEvent(element);
+    markFieldDirty(element);
   }
 
   function handleSubmit(event) {
     if (isPickerActive) {
       return;
     }
-    flushPendingFieldEvents();
+    flushDirtyFieldEvents();
     recordEvent("submit", "submit", event.target, {});
   }
 
@@ -743,10 +741,13 @@
   document.addEventListener("change", handleChange, true);
   document.addEventListener("focusout", handleFocusOut, true);
   document.addEventListener("submit", handleSubmit, true);
-  window.addEventListener("beforeunload", flushPendingFieldEvents, true);
+  window.addEventListener("beforeunload", flushDirtyFieldEvents, true);
   window.addEventListener("pageshow", recordPageLoad);
 
   window.__uiRecorderSetState = function (nextState) {
+    if (state.isRecording && !Boolean(nextState?.isRecording)) {
+      flushDirtyFieldEvents();
+    }
     state = {
       isRecording: Boolean(nextState?.isRecording),
       sessionId: nextState?.sessionId || null
